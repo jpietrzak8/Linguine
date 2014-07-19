@@ -1,0 +1,208 @@
+<linguine>
+
+<newsfeed
+ url="http://www.npr.org/rss/podcast.php?id=500005"
+ frequency="hourly"
+ category="news"
+ media="audio">
+ <name>NPR Headline News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.foxnewsradio.com/foxnewsradio"
+ frequency="hourly"
+ category="news"
+ media="audio">
+ <name>Fox News Radio Headline News</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.nhk.or.jp/r-news/podcast/nhkradionews.xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>NHK Radio News</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.wsjonline.com/wsj/podcast_wall_street_journal_this_morning?format=xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>Wall Street Journal This Morning</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://downloads.bbc.co.uk/podcasts/worldservice/newshour/rss.xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>BBC Newshour</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.feedburner.com/NewshourFullProgramPodcast?format=xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>PBS Newshour</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.cnn.com/services/podcasting/ac360audio/rss"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>CNN Anderson Cooper 360</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+  url="http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-Nightly.xml"
+  frequency="daily"
+ category="news"
+  media="audio">
+ <name>NBC Nightly News</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://abcnews.go.com/xmldata/xmlPodcast?id=868748&amp;src=i"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>ABC Nightline</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.feedburner.com/SlatePoliticalGabfest"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>Slate Political Gabfest</name>
+ <tag>politics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.cbsnews.com/podcast_eveningnews_video_1?format=xml"
+ frequency="daily"
+ category="news"
+ media="video">
+ <name>CBS Evening News</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.npr.org/rss/podcast.php?id=510053"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>On Point with Tom Ashbrook</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.npr.org/rss/podcast.php?id=1056"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>NPR World Story of the Day</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.reuters.com/reuters/video/quickcut/rss/mp4/"
+ frequency="other"
+ category="news"
+ media="video">
+ <name>Reuters Top News</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.cnn.com/services/podcasting/ac360/rss"
+ frequency="daily"
+ category="news"
+ media="video">
+ <name>Anderson Cooper 360</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.mprnews.org/podcasts/political-junkie/"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>Political Junkie with Ken Rudin</name>
+ <tag>politics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.cbc.ca/podcasting/includes/hourlynews.xml"
+ frequency="hourly"
+ category="news"
+ media="audio">
+ <name>CBC News: Hourly Edition</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.cbc.ca/podcasting/includes/wr.xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>CBC News: World Report</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-MTP.xml"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>NBC Meet the Press</name>
+ <tag>politics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-TDY-PODCAST-MP3.xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>NBC The Today Show</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.nhk.or.jp/rj/podcast/rss/english.xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>English News - NHK World Radio Japan</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://downloads.bbc.co.uk/podcasts/worldservice/globalnews/rss.xml"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>BBC Global News</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.feedburner.com/NewshourPoliticalWrapPodcast?format=xml"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>PBS Newshour Shields &amp; Brooks</name>
+ <tag>politics</tag>
+</newsfeed>
+
+</linguine>
