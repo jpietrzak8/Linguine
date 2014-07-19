@@ -1,0 +1,94 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>
+Linguine Instant News & Politics App
+</title>
+</head>
+<body>
+
+<h1>Linguine Documentation</h1>
+
+<p>
+Linguine is an app that provides quick access to news and political
+opinion from around the world.  The app retrieves and collates RSS data
+from numerous podcasters; it then presents a list of the most recent
+podcasts from these sources.  When an item on the list is selected,
+the corresponding podcast will be streamed over the net and played
+on your phone.
+</p>
+
+<h2>Using Linguine</h2>
+
+<p>
+Linguine has two main windows, the "List" window and the "Player" window.
+In general, the "List" window organizes and displays the list of available
+podcasts, and the "Player" window plays a podcast when it is selected
+from the list.
+</p>
+
+<h3>The "List" Window</h3>
+
+<p>
+The "List" window will provide information on the available list of
+podcasts; generally, this will include a small image and the title for
+each podcast, taken from the RSS information retrieved.  Please note that,
+when first starting Linguine, it may take some time for the list to be
+fully populated, as there may be many RSS files to download.
+</p>
+
+<p>
+There are two combo boxes at the bottom of the window; the one on the left
+filters podcasts based on how frequently they are updated.  So, if you select
+"Hourly", only podcasts that update every hour will be shown; if you select
+"Daily", podcasts that only update once every 24 hours will be shown.  (Some
+podcasts, such as the BBC Newshour, update twice daily; however, they have
+been placed into the "Daily" collection as well.)
+</p>
+
+<p>
+The combo box on the right allows you to choose the category of the podcast.
+For now, the only categories available are "News" and "Politics"; this will
+likely be expanded in future updates.  You can also choose the "Any" option
+here, which will select all podcasts regardless of category.
+</p>
+
+<p>
+Finally, there is a drop-down menu available for the app.  The current
+options are "Load Newsfeeds File", which will allow you to load a custom
+XML file containing a different set of newsfeeds; "Documentation", which
+will display this file; and "About", which provides some general information
+about the app.
+</p>
+
+<h3>The "Player" Window</h3>
+
+<p>
+The "Player" window provides a very simple mechanism for playing audio and
+video data.  For audio podcasts, an image and title for the podcast is
+displayed, as well as a percentage of how much of the media has been played.
+There are three control buttons available; a play/pause button, a stop
+button, and an "info" button that provides some general information taken
+from GStreamer.
+</p>
+
+<h4>Notes on Video</h4>
+
+<p>
+Please note that, as of the current version of Linguine, there are several
+problems with video playback.  The mechanism currently used to display
+video data is unable to work correctly when the N900 is in portrait
+orientation; you will need to keep the phone in landscape mode in order to
+see video.  Moreover, this mechanism also has significant trouble dealing
+with changes to the size or location of its output window; in particular,
+the video may be dropped if the phone is rotated from landscape to portrait
+and back.
+</p>
+
+<p>
+These issues are due mainly to the very old version of GStreamer in use
+on the N900.  Future updates to Linguine may be able to address this problem.
+</p>
+
+</body>
+</html>

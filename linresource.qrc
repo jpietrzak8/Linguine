@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/playback_pause_icon&amp;48.png</file>
+        <file>icons/playback_play_icon&amp;48.png</file>
+        <file>icons/playback_stop_icon&amp;48.png</file>
+        <file>icons/info_icon&amp;48.png</file>
+        <file>newsfeeds.xml</file>
+        <file>doc/about.html</file>
+        <file>doc/documentation.html</file>
+    </qresource>
+</RCC>
