@@ -69,7 +69,10 @@ OTHER_FILES += \
     qtc_packaging/debian_fremantle/changelog \
     newsfeeds.xml \
     doc/documentation.html \
-    doc/about.html
+    doc/about.html \
+    README.md \
+    LICENSE.md \
+    COPYING
 
 unix {
     CONFIG += link_pkgconfig
