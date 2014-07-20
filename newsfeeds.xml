@@ -189,7 +189,7 @@
  frequency="daily"
  category="news"
  media="audio">
- <name>BBC Russian Service</news>
+ <name>BBC Russian Service</name>
 </newsfeed>
 
 </linguine>
