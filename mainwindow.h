@@ -33,6 +33,7 @@ class LinNewsfeedWidgetItem;
 class QXmlStreamReader;
 class LinDocumentationForm;
 class LinAboutForm;
+class QSettings;
 
 namespace Ui {
     class MainWindow;
@@ -61,6 +62,7 @@ private slots:
   void on_mediaListWidget_itemActivated(QListWidgetItem *item);
 
   void on_actionLoad_Newsfeeds_File_triggered();
+  void on_actionReset_Newsfeeds_triggered();
   void on_actionDocumentation_triggered();
   void on_actionAbout_triggered();
 
@@ -68,7 +70,8 @@ private slots:
   void on_categoryComboBox_currentIndexChanged(int index);
 
 private:
-  void retrieveNewsfeeds();
+  void retrieveNewsfeeds(
+    QSettings &settings);
 
   void parseXML(
     QXmlStreamReader &reader);

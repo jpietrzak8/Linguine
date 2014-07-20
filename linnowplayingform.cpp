@@ -291,6 +291,16 @@ void LinNowPlayingForm::resizeEvent(
   displayImage();
 }
 
+
+void LinNowPlayingForm::closeEvent(
+  QCloseEvent *event)
+{
+  stopPlaying();
+
+  QWidget::closeEvent(event);
+}
+
+
 void LinNowPlayingForm::on_vPlayButton_clicked()
 {
   pausePlaying();

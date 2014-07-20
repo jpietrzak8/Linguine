@@ -72,6 +72,9 @@ protected:
   void resizeEvent(
     QResizeEvent *event);
 
+  void closeEvent(
+    QCloseEvent *event);
+
 private slots:
 //  void on_fullscreenButton_clicked();
   void on_hPlayButton_clicked();

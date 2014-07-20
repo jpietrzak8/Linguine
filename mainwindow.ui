@@ -94,6 +94,7 @@
      <string>Linguine</string>
     </property>
     <addaction name="actionLoad_Newsfeeds_File"/>
+    <addaction name="actionReset_Newsfeeds"/>
     <addaction name="actionDocumentation"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -112,6 +113,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionReset_Newsfeeds">
+   <property name="text">
+    <string>Reset Newsfeeds</string>
    </property>
   </action>
  </widget>

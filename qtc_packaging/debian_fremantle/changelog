@@ -1,5 +1,17 @@
+linguine (0.1.1) unstable; urgency=low
+  * Major improvement to video display: by locking the screen to landscape mode whenever a video is running, the video player no longer crashes.
+  * Several bug fixes, including one that caused XML files loaded by the user to be ignored.
+  * A few new podcasts: The Guardian's weekly political show, TruthDig's weekly political show, On Point with Tom Ashbrook's weekly news discussion, a pair of Radio France International daily newscasts, a Spanish "24 Horas" daily news show, the German Tagesschau daily news summary, and the BBC Russian Service.  (As an English speaker, I can't really vouch for the quality of the non-English podcasts...)  Also, a new video podcast, the left-leaning Democracy Now! daily news program.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Sun, 20 Jul 2014 18:13:27 -0400
+
+linguine (0.1.0) unstable; urgency=low
+  * This is the initial public release of Linguine, an app providing quick and easy access to a wide array of news & political podcasts.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Sat, 19 Jul 2014 20:55:37 -0400
+
 linguine (0.0.1) unstable; urgency=low
 
   * Initial Release.
 
- -- unknown <john@unknown>  Tue, 03 Jun 2014 13:42:39 -0400
+ -- John Pietrzak <jpietrzak8@gmail.com>  Tue, 03 Jun 2014 13:42:39 -0400

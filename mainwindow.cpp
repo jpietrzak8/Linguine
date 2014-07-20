@@ -55,12 +55,36 @@ MainWindow::MainWindow(
   documentationForm = new LinDocumentationForm(this);
   aboutForm = new LinAboutForm(this);
 
-  retrieveNewsfeeds();
+  QSettings settings("pietrzak.org", "Linguine");
+
+  if (settings.contains("currentFrequencyIndex"))
+  {
+    ui->frequencyComboBox->setCurrentIndex(
+      settings.value("currentFrequencyIndex").toInt());
+  }
+
+  if (settings.contains("currentCategoryIndex"))
+  {
+    ui->categoryComboBox->setCurrentIndex(
+      settings.value("currentCategoryIndex").toInt());
+  }
+
+  retrieveNewsfeeds(settings);
 }
 
 
 MainWindow::~MainWindow()
 {
+  QSettings settings("pietrzak.org", "Linguine");
+
+  settings.setValue(
+    "currentFrequencyIndex",
+    ui->frequencyComboBox->currentIndex());
+
+  settings.setValue(
+    "currentCategoryIndex",
+    ui->categoryComboBox->currentIndex());
+
   if (nowPlayingForm) delete nowPlayingForm;
   if (videoDisplayForm) delete videoDisplayForm;
   delete ui;
@@ -123,13 +147,14 @@ void MainWindow::showExpanded()
 }
 
 
-void MainWindow::retrieveNewsfeeds()
+void MainWindow::retrieveNewsfeeds(
+  QSettings &settings)
 {
-  QSettings settings("pietrzak.org", "Linguine");
+//  QSettings settings("pietrzak.org", "Linguine");
 
   int size = settings.beginReadArray("newsfeeds");
 
-//  if (size == 0)
+  if (size == 0)
   {
     QFile xmlFile(":/newsfeeds.xml");
 
@@ -439,6 +464,12 @@ void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
       nwi->getItemTitle(),
       nwi->getMediaUrl());
 
+    // Set auto orientation to false:
+    setAttribute(static_cast<Qt::WidgetAttribute>(130), false);
+
+    // Set landscape orientation to true:
+    setAttribute(static_cast<Qt::WidgetAttribute>(129), true);
+
     videoDisplayForm->show();
   }
 }
@@ -462,6 +493,27 @@ void MainWindow::on_actionLoad_Newsfeeds_File_triggered()
     QString err;
     err += "Unable to open ";
     err += filename;
+
+    QMaemo5InformationBox::information(this, err);
+
+    qDebug() << err;
+
+    return;
+  }
+
+  QXmlStreamReader reader(&xmlFile);
+
+  parseXML(reader);
+}
+
+
+void MainWindow::on_actionReset_Newsfeeds_triggered()
+{
+  QFile xmlFile(":/newsfeeds.xml");
+
+  if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    QString err("Unable to open default XML file");
 
     QMaemo5InformationBox::information(this, err);
 

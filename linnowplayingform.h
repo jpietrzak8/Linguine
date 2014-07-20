@@ -66,7 +66,10 @@ public slots:
 protected:
   void resizeEvent(
     QResizeEvent *event);
-  
+
+  void closeEvent(
+    QCloseEvent *event);
+
 private slots:
   void on_vPlayButton_clicked();
   void on_vStopButton_clicked();

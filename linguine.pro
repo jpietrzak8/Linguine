@@ -27,7 +27,6 @@ QT += network maemo5
 SOURCES += main.cpp mainwindow.cpp \
     linnowplayingform.cpp \
     linvideodisplayform.cpp \
-    util/linfullscreenbutton.cpp \
     linnewsfeedwidgetitem.cpp \
     linrssparser.cpp \
     lingstdatadialog.cpp \
@@ -37,7 +36,6 @@ HEADERS += mainwindow.h \
     linnowplayingform.h \
     linnewsfeedwidgetitem.h \
     linvideodisplayform.h \
-    util/linfullscreenbutton.h \
     linrssparser.h \
     lingstdatadialog.h \
     lindocumentationform.h \

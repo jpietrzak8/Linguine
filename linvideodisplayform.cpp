@@ -339,6 +339,20 @@ void LinVideoDisplayForm::resizeEvent(
 }
 
 
+void LinVideoDisplayForm::closeEvent(
+  QCloseEvent *event)
+{
+  stopPlaying();
+
+  // Set landscape orientation to false:
+  parentWidget()->setAttribute(static_cast<Qt::WidgetAttribute>(129), false);
+  // Set auto orientation to true:
+  parentWidget()->setAttribute(static_cast<Qt::WidgetAttribute>(130), true);
+
+  QWidget::closeEvent(event);
+}
+
+
 void LinVideoDisplayForm::finishedBuffer()
 {
   if (!runningElement) return;

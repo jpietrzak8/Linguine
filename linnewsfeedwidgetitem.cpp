@@ -23,7 +23,7 @@
 #include "linnewsfeedwidgetitem.h"
 
 #include <QSettings>
-#include "LinRSSParser.h"
+#include "linrssparser.h"
 
 #include <QDebug>
 
