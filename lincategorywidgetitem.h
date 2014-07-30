@@ -1,5 +1,5 @@
 //
-// lingstdatadialog.h
+// lincategorywidgetitem.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,54 +20,45 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINGSTDATADIALOG_H
-#define LINGSTDATADIALOG_H
+#ifndef LINCATEGORYWIDGETITEM_H
+#define LINCATEGORYWIDGETITEM_H
 
-#include <QDialog>
+#include <QListWidgetItem>
+#include "linfilteritems.h"
 
-#include <gst/gst.h>
-
-namespace Ui {
-class LinGstDataDialog;
-}
-
-class LinGstDataDialog : public QDialog
+class LinCategoryWidgetItem: public QListWidgetItem
 {
-  Q_OBJECT
-  
 public:
-  explicit LinGstDataDialog(QWidget *parent = 0);
-  ~LinGstDataDialog();
-
-  // Retreive and store the duration:
-  void retrieveDuration(
-    GstElement *pipeline);
-
-  // Accessor function for duration:
-  gint64 getDuration() {return duration;}
-
-  // Always retrieve position, no need to store it:
-  gint64 retrievePosition(
-    GstElement *pipeline);
-
-  int displayData(
-    GstElement *pipeline);
-
-  void setTitle(
+  LinCategoryWidgetItem(
     QString title);
 
-  void setArtist(
-    QString artist);
+  void setFrequency(
+    FrequencyType frequency);
 
-  void setAlbum(
-    QString album);
+  void setMedia(
+    MediaType media);
 
-  void reset();
+  void setContent(
+    ContentType content);
+
+  void setLanguage(
+    LanguageType language);
+
+  void setTag(
+    QString tag);
+
+  FrequencyType getFrequency() { return frequency; }
+  MediaType getMedia() { return media; }
+  ContentType getContent() { return content; }
+  LanguageType getLanguage() { return language; }
+  QString getTag() { return tag; }
 
 private:
-  Ui::LinGstDataDialog *ui;
-
-  gint64 duration;
+  FrequencyType frequency;
+  MediaType media;
+  ContentType content;
+  LanguageType language;
+  QString tag;
 };
 
-#endif // LINGSTDATADIALOG_H
+#endif // LINCATEGORYWIDGETITEM_H

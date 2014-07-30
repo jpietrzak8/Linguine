@@ -7,5 +7,8 @@
         <file>newsfeeds.xml</file>
         <file>doc/about.html</file>
         <file>doc/documentation.html</file>
+        <file>icons/playback_rew_icon&amp;48.png</file>
+        <file>icons/playback_ff_icon&amp;48.png</file>
+        <file>icons/arrow_two_head_icon&amp;48.png</file>
     </qresource>
 </RCC>

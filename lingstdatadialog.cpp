@@ -27,19 +27,23 @@
 #include <QTextStream>
 
 
-LinGstDataDialog::LinGstDataDialog(QWidget *parent) :
-  QDialog(parent),
-  ui(new Ui::LinGstDataDialog)
+LinGstDataDialog::LinGstDataDialog(
+  QWidget *parent)
+  : QDialog(parent),
+    ui(new Ui::LinGstDataDialog),
+    duration(0)
 {
   ui->setupUi(this);
 }
+
 
 LinGstDataDialog::~LinGstDataDialog()
 {
   delete ui;
 }
 
-int LinGstDataDialog::displayData(
+
+void LinGstDataDialog::retrieveDuration(
   GstElement *pipeline)
 {
   GstQuery *query;
@@ -55,16 +59,18 @@ int LinGstDataDialog::displayData(
 
   if (gst_element_query(pipeline, query))
   {
-    gint64 duration;
     gst_query_parse_duration(query, NULL, &duration);
-    // Duration is in nanoseconds.  Divide by 1000000000 to get seconds.
-    duration /= 1000000000;
-    seconds = duration % 60;
 
-    duration /= 60;
-    minutes = duration % 60;
+    gint64 displayVal = duration;
 
-    hours = duration / 60;
+    // displayVal is in nanoseconds.  Divide by 1000000000 to get seconds.
+    displayVal /= 1000000000;
+    seconds = displayVal % 60;
+
+    displayVal /= 60;
+    minutes = displayVal % 60;
+
+    hours = displayVal / 60;
   }
 
   gst_query_unref(query);
@@ -78,6 +84,19 @@ int LinGstDataDialog::displayData(
 
   ui->durationLabel->setText(outputString);
   outputString.clear();
+}
+
+
+gint64 LinGstDataDialog::retrievePosition(
+  GstElement *pipeline)
+{
+  GstQuery *query;
+  gint64 position;
+  int seconds = 0;
+  int minutes = 0;
+  int hours = 0;
+  QString outputString;
+  QTextStream qts(&outputString);
 
   // Determine the position of the stream:
 
@@ -85,7 +104,6 @@ int LinGstDataDialog::displayData(
 
   if (gst_element_query(pipeline, query))
   {
-    gint64 position;
     gst_query_parse_position(query, NULL, &position);
     // Position is in nanoseconds.  Divide by 1000000000 to get seconds.
     position /= 1000000000;
@@ -107,6 +125,15 @@ int LinGstDataDialog::displayData(
   qts << seconds;
   ui->positionLabel->setText(outputString);
   outputString.clear();
+
+  return position;
+}
+
+
+int LinGstDataDialog::displayData(
+  GstElement *pipeline)
+{
+  retrievePosition(pipeline);
 
   return exec();
 }
@@ -130,4 +157,16 @@ void LinGstDataDialog::setAlbum(
   QString album)
 {
   ui->albumLabel->setText(album);
+}
+
+
+void LinGstDataDialog::reset()
+{
+  duration = 0;
+
+  ui->durationLabel->setText("unknown");
+  ui->positionLabel->setText("unknown");
+  ui->titleLabel->setText("unknown");
+  ui->artistLabel->setText("unknown");
+  ui->albumLabel->setText("unknown");
 }

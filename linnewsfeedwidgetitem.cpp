@@ -30,46 +30,70 @@
 
 LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   QString n,
-  QString sourceUrl,
-  Frequency f,
+  QString s,
+  FrequencyType f,
   ContentType c,
   MediaType m,
-  QNetworkAccessManager *qnam)
-  : name(n),
+  LanguageType l,
+  QNetworkAccessManager *q)
+  : alreadyParsed(false),
+    name(n),
+    sourceUrl(s),
     frequency(f),
     category(c),
-    media(m)
+    media(m),
+    language(l),
+    qnam(q),
+    parser(0)
 {
-  parser = new LinRSSParser(this, sourceUrl, qnam);
+//  parser = new LinRSSParser(this, sourceUrl, qnam);
 }
 
 
 LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   QString n,
-  QString sourceUrl,
-  Frequency f,
+  QString s,
+  FrequencyType f,
   ContentType c,
   MediaType m,
-  QSettings &settings,
-  QNetworkAccessManager *qnam)
-  : name(n),
+  LanguageType l,
+  QNetworkAccessManager *q,
+  QSettings &settings)
+  : alreadyParsed(false),
+    name(n),
+    sourceUrl(s),
     frequency(f),
     category(c),
-    media(m)
+    media(m),
+    language(l),
+    qnam(q),
+    parser(0)
 {
-  parser = new LinRSSParser(this, sourceUrl, qnam);
+//  parser = new LinRSSParser(this, sourceUrl, qnam);
 
   settings.setValue("name", name);
   settings.setValue("url", sourceUrl);
   settings.setValue("frequency", frequency);
   settings.setValue("category", category);
   settings.setValue("media", media);
+  settings.setValue("language", language);
+}
+
+
+LinNewsfeedWidgetItem::~LinNewsfeedWidgetItem()
+{
+  if (parser) delete parser;
 }
 
 
 void LinNewsfeedWidgetItem::parseRSS()
 {
-  parser->startParsing();
+  if (!alreadyParsed)
+  {
+    parser = new LinRSSParser(this, sourceUrl, qnam);
+    parser->startParsing();
+    alreadyParsed = true;
+  }
 }
 
 

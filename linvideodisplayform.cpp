@@ -93,6 +93,51 @@ static gboolean linGstBusCallback(
     }
     break;
 
+  case GST_MESSAGE_STATE_CHANGED:
+    // The stream has entered a new state; perform any necessary cleanup:
+    {
+      LinVideoDisplayForm *myForm =
+        static_cast<LinVideoDisplayForm *>(linGstObjectPtr);
+
+      // Check to see if the stream allows seeking:
+      if ( myForm->seekingUnknown()
+        && myForm->gstObjectMatches(GST_MESSAGE_SRC(msg)))
+      {
+        GstState oldState, newState, pendingState;
+
+        gst_message_parse_state_changed(
+          msg, &oldState, &newState, &pendingState);
+
+        if (newState == GST_STATE_PLAYING)
+        {
+          // First, initialize the data dialog:
+          myForm->setupDataDialog();
+
+          // Now, check for seeking:
+          gboolean seekEnabled;
+          gint64 start, end;
+          GstQuery *query;
+          query = gst_query_new_seeking(GST_FORMAT_TIME);
+          if (myForm->gstElementQuery(query))
+          {
+            gst_query_parse_seeking(query, NULL, &seekEnabled, &start, &end);
+
+/*
+            if (seekEnabled)
+            {
+              qDebug() << "Seek from " << start << " to " << end;
+            }
+*/
+
+            myForm->setSeeking(seekEnabled == true);
+          }
+
+          gst_query_unref(query);
+        }
+      }
+    }
+    break;
+
   case GST_MESSAGE_BUFFERING:
     {
       LinVideoDisplayForm *myForm =
@@ -166,6 +211,7 @@ LinVideoDisplayForm::LinVideoDisplayForm(
     gstreamerInUse(false),
     paused(true),
     waitingForBuffer(false),
+    checkedSeeking(false),
     dataDialog(0)
 {
   ui->setupUi(this);
@@ -180,9 +226,6 @@ LinVideoDisplayForm::LinVideoDisplayForm(
   gst_init (NULL, NULL);
 
   dataDialog = new LinGstDataDialog(this);
-
-  // Stick to the horizontal mode for now:
-  ui->stackedWidget->setCurrentWidget(ui->horizontalPage);
 
   connect(
     &timer,
@@ -209,8 +252,7 @@ void LinVideoDisplayForm::setProgram(
 {
   if (gstreamerInUse) stopPlaying();
 
-  ui->hTitleLabel->setText(title);
-  ui->vTitleLabel->setText(title);
+//  ui->titleLabel->setText(title);
 
 //  GstElement *xvsink = gst_element_factory_make("xvimagesink", "xvsink");
   xvsink = gst_element_factory_make("xvimagesink", "xvsink");
@@ -224,7 +266,7 @@ void LinVideoDisplayForm::setProgram(
   }
 
 //qDebug() << "winId: " << ui->videoWidget->winId();
-  unsigned long windowId = ui->hVideoWidget->winId();
+  unsigned long windowId = ui->videoWidget->winId();
   QApplication::syncX();
   gst_x_overlay_set_xwindow_id (
     GST_X_OVERLAY(G_OBJECT(xvsink)),
@@ -235,6 +277,10 @@ void LinVideoDisplayForm::setProgram(
     G_OBJECT(xvsink),
     "force_aspect_ratio",
     true,
+    "autopaint-colorkey",
+    false,
+    "colorkey",
+    0x080810,
     NULL);
 
   GstElement *player = gst_element_factory_make("playbin2", "player");
@@ -268,8 +314,7 @@ void LinVideoDisplayForm::setProgram(
   gst_element_set_state(runningElement, GST_STATE_PLAYING);
   setPaused(false);
 
-  ui->hPlayButton->setEnabled(true);
-  ui->vPlayButton->setEnabled(true);
+  ui->playButton->setEnabled(true);
 
   gstreamerInUse = true;
 }
@@ -304,9 +349,12 @@ void LinVideoDisplayForm::stopPlaying()
 
   gstreamerInUse = false;
 
-  ui->hPlayButton->setEnabled(false);
-  ui->vPlayButton->setEnabled(false);
+  ui->playButton->setEnabled(false);
+  setSeeking(false);
+  checkedSeeking = false;
   setPaused(true);
+  ui->seekSlider->setValue(0);
+  dataDialog->reset();
 }
 
 
@@ -322,34 +370,17 @@ void LinVideoDisplayForm::waitForBuffer()
 }
 
 
-void LinVideoDisplayForm::resizeEvent(
-  QResizeEvent *event)
-{
-  QWidget::resizeEvent(event);
-
-  // Need to switch the video to the appropriate page here!
-  if (ui->stackedWidget->width() > ui->stackedWidget->height())
-  {
-    ui->stackedWidget->setCurrentWidget(ui->horizontalPage);
-  }
-  else
-  {
-    ui->stackedWidget->setCurrentWidget(ui->verticalPage);
-  }
-}
-
-
 void LinVideoDisplayForm::closeEvent(
   QCloseEvent *event)
 {
+  QWidget::closeEvent(event);
+
   stopPlaying();
 
   // Set landscape orientation to false:
   parentWidget()->setAttribute(static_cast<Qt::WidgetAttribute>(129), false);
   // Set auto orientation to true:
   parentWidget()->setAttribute(static_cast<Qt::WidgetAttribute>(130), true);
-
-  QWidget::closeEvent(event);
 }
 
 
@@ -410,32 +441,19 @@ void LinVideoDisplayForm::on_fullscreenButton_clicked()
 }
 */
 
-void LinVideoDisplayForm::on_hPlayButton_clicked()
+void LinVideoDisplayForm::on_playButton_clicked()
 {
   pausePlaying();
 }
 
-void LinVideoDisplayForm::on_hStopButton_clicked()
+/*
+void LinVideoDisplayForm::on_stopButton_clicked()
 {
   stopPlaying();
 }
+*/
 
-void LinVideoDisplayForm::on_hInfoButton_clicked()
-{
-  dataDialog->displayData(runningElement);
-}
-
-void LinVideoDisplayForm::on_vPlayButton_clicked()
-{
-  pausePlaying();
-}
-
-void LinVideoDisplayForm::on_vStopButton_clicked()
-{
-  stopPlaying();
-}
-
-void LinVideoDisplayForm::on_vInfoButton_clicked()
+void LinVideoDisplayForm::on_infoButton_clicked()
 {
   dataDialog->displayData(runningElement);
 }
@@ -469,14 +487,12 @@ void LinVideoDisplayForm::setPaused(
 
   if (paused)
   {
-    ui->hPlayButton->setIcon(QIcon(":/icons/playback_play_icon&48.png"));
-    ui->vPlayButton->setIcon(QIcon(":/icons/playback_play_icon&48.png"));
+    ui->playButton->setIcon(QIcon(":/icons/playback_play_icon&48.png"));
     timer.stop();
   }
   else
   {
-    ui->hPlayButton->setIcon(QIcon(":/icons/playback_pause_icon&48.png"));
-    ui->vPlayButton->setIcon(QIcon(":/icons/playback_pause_icon&48.png"));
+    ui->playButton->setIcon(QIcon(":/icons/playback_pause_icon&48.png"));
     timer.start(1000);
   }
 }
@@ -484,26 +500,24 @@ void LinVideoDisplayForm::setPaused(
 
 void LinVideoDisplayForm::updateProgress()
 {
+  if (ui->seekSlider->isSliderDown())
+  {
+    // The user is moving the slider, so don't update it:
+    return;
+  }
+
   GstQuery *query;
 
   // Determine the duration of the stream:
-  gint64 duration = 0;
-  gint64 position = 0;
-
-  query = gst_query_new_duration(GST_FORMAT_TIME);
-
-  if (gst_element_query(runningElement, query))
-  {
-    gst_query_parse_duration(query, NULL, &duration);
-  }
-
-  gst_query_unref(query);
+  gint64 duration = dataDialog->getDuration();
 
   if (duration == 0)
   {
     // Duration not available; no point in continuing any further.
     return;
   }
+
+  gint64 position = 0;
 
   // Determine the position of the stream:
 
@@ -519,9 +533,61 @@ void LinVideoDisplayForm::updateProgress()
   // Determine the percentage:
   int percentage = (position * 100) / duration;
 
-  ui->vProgressBar->setValue(percentage);
+/*
   QString percentString;
   percentString.setNum(percentage);
   percentString.append("%");
-  ui->hPercentageLabel->setText(percentString);
+  ui->percentageLabel->setText(percentString);
+*/
+  ui->seekSlider->setValue(percentage);
+}
+
+
+void LinVideoDisplayForm::setSeeking(
+  bool enableSeeking)
+{
+  checkedSeeking = true;  // No need to check again after this.
+
+  ui->seekSlider->setEnabled(enableSeeking);
+}
+
+
+void LinVideoDisplayForm::on_seekSlider_sliderMoved(
+  int percentage)
+{
+  gint64 duration = dataDialog->getDuration();
+
+  if (!duration) return;
+
+  gint64 nanoseconds = duration * ((double)percentage / 100);
+
+  gst_element_seek(
+    runningElement, // the GStreamer pipeline
+    1.0,  // the playback rate
+    GST_FORMAT_TIME,  // use units of time (vs frames, bytes, etc.)
+    GST_SEEK_FLAG_FLUSH, // flush all internal buffers with this seek
+    GST_SEEK_TYPE_SET, // go directly to the following location
+    nanoseconds, // the specified location
+    GST_SEEK_TYPE_NONE, // no stop position format
+    GST_CLOCK_TIME_NONE); // no stop position
+}
+
+
+bool LinVideoDisplayForm::gstObjectMatches(
+  GstObject *obj)
+{
+  return obj == GST_OBJECT(runningElement);
+}
+
+
+bool LinVideoDisplayForm::gstElementQuery(
+  GstQuery *query)
+{
+  return gst_element_query(runningElement, query);
+}
+
+
+void LinVideoDisplayForm::setupDataDialog()
+{
+  dataDialog->retrieveDuration(runningElement);
 }

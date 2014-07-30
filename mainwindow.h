@@ -26,22 +26,25 @@
 #include <QtGui/QMainWindow>
 #include <QNetworkAccessManager>
 
+class LinFlickableTabBar;
 class LinNowPlayingForm;
 class LinVideoDisplayForm;
+class LinHtmlDisplayForm;
 class QListWidgetItem;
 class LinNewsfeedWidgetItem;
 class QXmlStreamReader;
 class LinDocumentationForm;
 class LinAboutForm;
 class QSettings;
+//class LinFilterDialog;
 
 namespace Ui {
-    class MainWindow;
+  class MainWindow;
 }
 
 class MainWindow : public QMainWindow
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
     enum ScreenOrientation {
@@ -61,13 +64,21 @@ public:
 private slots:
   void on_mediaListWidget_itemActivated(QListWidgetItem *item);
 
+  void on_actionManage_Categories_triggered();
   void on_actionLoad_Newsfeeds_File_triggered();
   void on_actionReset_Newsfeeds_triggered();
   void on_actionDocumentation_triggered();
   void on_actionAbout_triggered();
 
+/*
   void on_frequencyComboBox_currentIndexChanged(int index);
   void on_categoryComboBox_currentIndexChanged(int index);
+*/
+
+//  void on_filterButton_clicked();
+
+//  void refilter();
+  void refilter(QListWidgetItem *item);
 
 private:
   void retrieveNewsfeeds(
@@ -89,14 +100,15 @@ private:
   void filterItem(
     LinNewsfeedWidgetItem *nwi);
 
-  void refilter();
-
   Ui::MainWindow *ui;
 
+  LinFlickableTabBar *flickableTabBar;
   LinNowPlayingForm *nowPlayingForm;
   LinVideoDisplayForm *videoDisplayForm;
+  LinHtmlDisplayForm *htmlDisplayForm;
   LinDocumentationForm *documentationForm;
   LinAboutForm *aboutForm;
+//  LinFilterDialog *filterDialog;
 
   QNetworkAccessManager qnam;
 };

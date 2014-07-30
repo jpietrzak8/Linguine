@@ -26,33 +26,11 @@
 #include <QListWidgetItem>
 #include <QPixmap>
 #include <QString>
+#include "linfilteritems.h"
 
 class QSettings;
 class LinRSSParser;
 class QNetworkAccessManager;
-
-enum Frequency
-{
-  Hourly_Rate,
-  Daily_Rate,
-  Weekly_Rate,
-  Other_Rate
-};
-
-
-enum MediaType
-{
-  Audio_Media,
-  Video_Media
-};
-
-
-enum ContentType
-{
-  News_Content,
-  Politics_Content,
-  Other_Content
-};
 
 
 class LinNewsfeedWidgetItem: public QListWidgetItem
@@ -61,19 +39,23 @@ public:
   LinNewsfeedWidgetItem(
     QString name,
     QString sourceUrl,
-    Frequency freq,
+    FrequencyType freq,
     ContentType category,
     MediaType media,
+    LanguageType language,
     QNetworkAccessManager *qnam);
 
   LinNewsfeedWidgetItem(
     QString name,
     QString sourceUrl,
-    Frequency freq,
+    FrequencyType freq,
     ContentType category,
     MediaType media,
-    QSettings &settings,
-    QNetworkAccessManager *qnam);
+    LanguageType language,
+    QNetworkAccessManager *qnam,
+    QSettings &settings);
+
+  ~LinNewsfeedWidgetItem();
 
   void parseRSS();
 
@@ -91,32 +73,42 @@ public:
   QString getMediaUrl();
 
   void setFrequency(
-    Frequency f)
+    FrequencyType f)
     {frequency = f;}
 
-  void setMediaType(
+  void setMedia(
     MediaType m)
     {media = m;}
 
-  void setContentType(
+  void setContent(
     ContentType c)
     {category = c;}
 
-  Frequency getFrequency() {return frequency;}
-  MediaType getMediaType() {return media;}
-  ContentType getContentType() {return category;}
+  void setLanguage(
+    LanguageType l)
+    {language = l;}
+
+  FrequencyType getFrequency() {return frequency;}
+  MediaType getMedia() {return media;}
+  ContentType getContent() {return category;}
+  LanguageType getLanguage() {return language;}
+  QString getSourceUrl() {return sourceUrl;}
 
 private:
+  bool alreadyParsed;
   QString name;
   QString sourceUrl;
-  Frequency frequency;
+  FrequencyType frequency;
   ContentType category;
   MediaType media;
+  LanguageType language;
 
-  LinRSSParser *parser;
   QPixmap image;
   QString itemTitle;
   QString mediaUrl;
+  QNetworkAccessManager *qnam;
+
+  LinRSSParser *parser;
 };
 
 #endif // LINNEWSFEEDWIDGETITEM_H

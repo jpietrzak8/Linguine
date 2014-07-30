@@ -14,7 +14,7 @@
    <string>Linguine</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="centralVerticalLayout">
     <item>
      <widget class="QListWidget" name="mediaListWidget">
       <property name="horizontalScrollBarPolicy">
@@ -30,53 +30,6 @@
        <bool>true</bool>
       </property>
      </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QComboBox" name="frequencyComboBox">
-        <item>
-         <property name="text">
-          <string>Hourly</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Daily</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Weekly</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Other</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="categoryComboBox">
-        <item>
-         <property name="text">
-          <string>News</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Politics</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Any</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
@@ -118,6 +71,11 @@
   <action name="actionReset_Newsfeeds">
    <property name="text">
     <string>Reset Newsfeeds</string>
+   </property>
+  </action>
+  <action name="actionManage_Categories">
+   <property name="text">
+    <string>Manage Categories</string>
    </property>
   </action>
  </widget>

@@ -27,36 +27,35 @@ podcasts, and the "Player" window plays a podcast when it is selected
 from the list.
 </p>
 
+<p>
+Textual RSS news is now also being supported.  For a given textual newsfeed,
+the latest news item will be displayed in the "List" window, and a new
+"Player" window has been created to display the full set of news.  There
+will undoubtedly be more changes in the future to better support text.
+</p>
+
 <h3>The "List" Window</h3>
 
 <p>
-The "List" window will provide information on the available list of
-podcasts; generally, this will include a small image and the title for
-each podcast, taken from the RSS information retrieved.  Please note that,
+The "List" window provides information on the available list of podcasts (or
+textual news feeds); generally, this will include a small image and the title
+for each feed, taken from the RSS information retrieved.  Please note that,
 when first starting Linguine, it may take some time for the list to be
 fully populated, as there may be many RSS files to download.
 </p>
 
 <p>
-There are two combo boxes at the bottom of the window; the one on the left
-filters podcasts based on how frequently they are updated.  So, if you select
-"Hourly", only podcasts that update every hour will be shown; if you select
-"Daily", podcasts that only update once every 24 hours will be shown.  (Some
-podcasts, such as the BBC Newshour, update twice daily; however, they have
-been placed into the "Daily" collection as well.)
-</p>
-
-<p>
-The combo box on the right allows you to choose the category of the podcast.
-For now, the only categories available are "News" and "Politics"; this will
-likely be expanded in future updates.  You can also choose the "Any" option
-here, which will select all podcasts regardless of category.
+The feeds are organized into categories, and these categories are displayed
+at the top of the window as a set of tabs.  You may need to scroll the tab
+bar left or right to see all the tabs.  Tapping a tab will show the
+feeds associated with that category.
 </p>
 
 <p>
 Finally, there is a drop-down menu available for the app.  The current
 options are "Load Newsfeeds File", which will allow you to load a custom
-XML file containing a different set of newsfeeds; "Documentation", which
+XML file containing a different set of newsfeeds; "Reset Newsfeeds", which
+will reset the newsfeeds to the default set; "Documentation", which
 will display this file; and "About", which provides some general information
 about the app.
 </p>
@@ -67,34 +66,20 @@ about the app.
 The "Player" window provides a very simple mechanism for playing audio and
 video data.  For audio podcasts, an image and title for the podcast is
 displayed, as well as a percentage of how much of the media has been played.
-There are three control buttons available; a play/pause button, a stop
-button, and an "info" button that provides some general information taken
-from GStreamer.
-</p>
-
-<h4>Notes on Video</h4>
-
-<p>
-Please note that, as of the current version of Linguine, there are several
-problems with video playback.  The mechanism currently used to display
-video data is unable to work correctly when the N900 is in portrait
-orientation; you will need to keep the phone in landscape mode in order to
-see video.  Moreover, this mechanism also has significant trouble dealing
-with changes to the size or location of its output window; in particular,
-the video may be dropped if the phone is rotated from landscape to portrait
-and back.
+In the audio player, there are three control buttons available; a play/pause
+button, a "seek" button, and an "info" button.  The seek button brings up
+a dialog box allowing you to quickly move forward or backward through the
+media.  The info button provides some general information taken from
+GStreamer.
 </p>
 
 <p>
-These issues are due mainly to the very old version of GStreamer in use
-on the N900.  Future updates to Linguine may be able to address this problem.
+In the video player, the seek slider is always displayed at the bottom of
+the screen, so the seek button has been removed.
 </p>
 
 <p>
-NOTE: As of version 0.1.1, some improvements have been made: the video should
-no longer break down if the screen orientation changes.  (This is due to the
-simple fix of forcing the orientation to always be in landscape when playing
-a video.)  Hopefully, more improvements will be availble in the future.
+There are currently no controls in the text RSS display.
 </p>
 
 </body>

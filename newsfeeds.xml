@@ -256,4 +256,60 @@
  <name>Tagesschau</name>
 </newsfeed>
 
+<newsfeed
+ url="http://news.google.com/news?pz=1&amp;cf=all&amp;ned=us&amp;hl=en&amp;output=rss"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Google News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.lemonde.fr/c/205/f/3050/index.rss"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Le Monde</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.reuters.com/reuters/topNews?format=xml"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Reuters Top News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.npr.org/rss/rss.php?id=1001"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>NPR Headline News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.cnn.com/rss/cnn_topstories.rss"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>CNN Headline News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.bbci.co.uk/news/rss.xml"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>BBC Top Stories</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.feedburner.com/pri/theworld"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>PRI's The World</name>
+</newsfeed>
+
 </linguine>

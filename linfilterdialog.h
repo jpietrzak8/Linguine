@@ -1,5 +1,5 @@
 //
-// lingstdatadialog.h
+// linfilterdialog.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,54 +20,37 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINGSTDATADIALOG_H
-#define LINGSTDATADIALOG_H
+#ifndef LINFILTERDIALOG_H
+#define LINFILTERDIALOG_H
 
 #include <QDialog>
-
-#include <gst/gst.h>
+#include "linfilteritems.h"
 
 namespace Ui {
-class LinGstDataDialog;
+class LinFilterDialog;
 }
 
-class LinGstDataDialog : public QDialog
+class LinFilterDialog : public QDialog
 {
   Q_OBJECT
   
 public:
-  explicit LinGstDataDialog(QWidget *parent = 0);
-  ~LinGstDataDialog();
+  explicit LinFilterDialog(QWidget *parent = 0);
+  ~LinFilterDialog();
 
-  // Retreive and store the duration:
-  void retrieveDuration(
-    GstElement *pipeline);
-
-  // Accessor function for duration:
-  gint64 getDuration() {return duration;}
-
-  // Always retrieve position, no need to store it:
-  gint64 retrievePosition(
-    GstElement *pipeline);
-
-  int displayData(
-    GstElement *pipeline);
-
-  void setTitle(
-    QString title);
-
-  void setArtist(
-    QString artist);
-
-  void setAlbum(
-    QString album);
-
-  void reset();
+signals:
+  void refilter();
+  
+private slots:
+  void on_buttonBox_accepted();
 
 private:
-  Ui::LinGstDataDialog *ui;
+  Ui::LinFilterDialog *ui;
 
-  gint64 duration;
+  FrequencyType frequency;
+  MediaType media;
+  ContentType content;
+  LanguageType language;
 };
 
-#endif // LINGSTDATADIALOG_H
+#endif // LINFILTERDIALOG_H

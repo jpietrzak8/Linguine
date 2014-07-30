@@ -56,6 +56,19 @@ public:
   void setAlbum(
     QString album);
 
+  bool gstElementQuery(
+    GstQuery *query);
+
+  bool gstObjectMatches(
+    GstObject *obj);
+
+  void setSeeking(
+    bool seekingEnabled);
+
+  bool seekingUnknown() { return !checkedSeeking; }
+
+  void setupDataDialog();
+
 public slots:
   void setProgram(
     QString title,
@@ -69,20 +82,17 @@ public slots:
 //  void returnFromFullscreen();
 
 protected:
-  void resizeEvent(
-    QResizeEvent *event);
-
   void closeEvent(
     QCloseEvent *event);
 
 private slots:
 //  void on_fullscreenButton_clicked();
-  void on_hPlayButton_clicked();
-  void on_hStopButton_clicked();
-  void on_hInfoButton_clicked();
-  void on_vPlayButton_clicked();
-  void on_vStopButton_clicked();
-  void on_vInfoButton_clicked();
+  void on_playButton_clicked();
+//  void on_seekButton_clicked();
+//  void on_stopButton_clicked();
+  void on_infoButton_clicked();
+  void on_seekSlider_sliderMoved(
+    int percentage);
 
   void updateProgress();
 
@@ -100,6 +110,7 @@ private:
   bool gstreamerInUse;
   bool paused;
   bool waitingForBuffer;
+  bool checkedSeeking;
 
   LinGstDataDialog *dataDialog;
   QTimer timer;

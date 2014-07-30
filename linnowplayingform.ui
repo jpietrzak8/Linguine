@@ -17,10 +17,13 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="verticalPage">
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QLabel" name="vImageLabel">
          <property name="sizePolicy">
@@ -69,7 +72,7 @@
            </property>
            <property name="icon">
             <iconset resource="linresource.qrc">
-             <normaloff>:/icons/playback_pause_icon&amp;48.png</normaloff>:/icons/playback_pause_icon&amp;48.png</iconset>
+             <normaloff>:/icons/playback_play_icon&amp;48.png</normaloff>:/icons/playback_play_icon&amp;48.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -80,13 +83,16 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="vStopButton">
+          <widget class="QPushButton" name="vSeekButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string/>
            </property>
            <property name="icon">
             <iconset resource="linresource.qrc">
-             <normaloff>:/icons/playback_stop_icon&amp;48.png</normaloff>:/icons/playback_stop_icon&amp;48.png</iconset>
+             <normaloff>:/icons/arrow_two_head_icon&amp;48.png</normaloff>:/icons/arrow_two_head_icon&amp;48.png</iconset>
            </property>
            <property name="iconSize">
             <size>
@@ -119,6 +125,9 @@
      </widget>
      <widget class="QWidget" name="horizontalPage">
       <layout class="QGridLayout" name="gridLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
        <item row="0" column="0">
         <widget class="QLabel" name="hImageLabel">
          <property name="sizePolicy">
@@ -139,6 +148,9 @@
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
           <widget class="QPushButton" name="hPlayButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
@@ -158,16 +170,22 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="hStopButton">
+          <widget class="QPushButton" name="hSeekButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="text">
+            <string/>
+           </property>
            <property name="icon">
             <iconset resource="linresource.qrc">
-             <normaloff>:/icons/playback_stop_icon&amp;48.png</normaloff>:/icons/playback_stop_icon&amp;48.png</iconset>
+             <normaloff>:/icons/arrow_two_head_icon&amp;48.png</normaloff>:/icons/arrow_two_head_icon&amp;48.png</iconset>
            </property>
            <property name="iconSize">
             <size>

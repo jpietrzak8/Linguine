@@ -31,6 +31,7 @@
 #include <QTimer>
 
 class LinGstDataDialog;
+class LinSeekDialog;
 
 namespace Ui {
 class LinNowPlayingForm;
@@ -53,6 +54,19 @@ public:
   void setAlbum(
     QString album);
 
+  bool gstElementQuery(
+    GstQuery *query);
+
+  bool gstObjectMatches(
+    GstObject *obj);
+
+  void setSeeking(
+    bool seekingEnabled);
+
+  bool seekingUnknown() {return !checkedSeeking;}
+
+  void setupDataDialog();
+
 public slots:
   void setProgram(
     QPixmap image,
@@ -72,13 +86,25 @@ protected:
 
 private slots:
   void on_vPlayButton_clicked();
-  void on_vStopButton_clicked();
+  void on_vSeekButton_clicked();
   void on_vInfoButton_clicked();
   void on_hPlayButton_clicked();
-  void on_hStopButton_clicked();
+  void on_hSeekButton_clicked();
   void on_hInfoButton_clicked();
 
+/*
+  void on_vRewButton_clicked();
+  void on_vFFButton_clicked();
+  void on_vStopButton_clicked();
+  void on_hFFButton_clicked();
+  void on_hRewButton_clicked();
+  void on_hStopButton_clicked();
+*/
+
   void updateProgress();
+
+  void seekToPercentage(
+    int percentage);
 
 private:
 //  void displayAudioTags();
@@ -92,9 +118,12 @@ private:
 
   bool gstreamerInUse;
   bool paused;
+  bool checkedSeeking;
+  int percentagePlayed;
 
   QPixmap currentImage;
   LinGstDataDialog *dataDialog;
+  LinSeekDialog *seekDialog;
   QTimer timer;
 };
 

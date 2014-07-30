@@ -27,6 +27,7 @@
 #include <QNetworkReply>
 #include <QMaemo5InformationBox>
 #include "lingstdatadialog.h"
+#include "linseekdialog.h"
 
 #include <QDebug>
 
@@ -80,6 +81,7 @@ static gboolean linGstBusCallback(
   switch (GST_MESSAGE_TYPE(msg))
   {
   case GST_MESSAGE_TAG:
+    // Tag information has returned from bus, collect it:
     {
       GstTagList *tags = NULL;
 
@@ -91,7 +93,53 @@ static gboolean linGstBusCallback(
     }
     break;
 
+  case GST_MESSAGE_STATE_CHANGED:
+    // The stream has entered a new state; perform any necessary cleanup:
+    {
+      LinNowPlayingForm *myForm =
+        static_cast<LinNowPlayingForm *>(linGstObjectPtr);
+
+      // Check to see if the stream allows seeking:
+      if ( myForm->seekingUnknown()
+        && myForm->gstObjectMatches(GST_MESSAGE_SRC(msg)))
+      {
+        GstState oldState, newState, pendingState;
+
+        gst_message_parse_state_changed(
+          msg, &oldState, &newState, &pendingState);
+
+        if (newState == GST_STATE_PLAYING)
+        {
+          // First, initialize the data dialog:
+          myForm->setupDataDialog();
+
+          // Now, check for seeking:
+          gboolean seekEnabled;
+          gint64 start, end;
+          GstQuery *query;
+          query = gst_query_new_seeking(GST_FORMAT_TIME);
+          if (myForm->gstElementQuery(query))
+          {
+            gst_query_parse_seeking(query, NULL, &seekEnabled, &start, &end);
+
+/*
+            if (seekEnabled)
+            {
+              qDebug() << "Seek from " << start << " to " << end;
+            }
+*/
+
+            myForm->setSeeking(seekEnabled == true);
+          }
+
+          gst_query_unref(query);
+        }
+      }
+    }
+    break;
+
   case GST_MESSAGE_EOS:
+    // The end of the stream has been reached, clean up:
     {
       LinNowPlayingForm *myForm =
         static_cast<LinNowPlayingForm *>(linGstObjectPtr);
@@ -101,6 +149,7 @@ static gboolean linGstBusCallback(
     break;
 
   case GST_MESSAGE_ERROR:
+    // An error has occurred, log it:
     {
       gchar *debug;
       GError *err;
@@ -141,7 +190,10 @@ LinNowPlayingForm::LinNowPlayingForm(
     runningElement(0),
     gstreamerInUse(false),
     paused(true),
-    dataDialog(0)
+    checkedSeeking(false),
+    percentagePlayed(0),
+    dataDialog(0),
+    seekDialog(0)
 {
   ui->setupUi(this);
 
@@ -152,6 +204,14 @@ LinNowPlayingForm::LinNowPlayingForm(
 //  gst_version(&major, &minor, &micro, &nano);
 
   dataDialog = new LinGstDataDialog(this);
+
+  seekDialog = new LinSeekDialog(this);
+
+  connect(
+    seekDialog,
+    SIGNAL(seekToPercentage(int)),
+    this,
+    SLOT(seekToPercentage(int)));
 
   connect(
     &timer,
@@ -166,6 +226,7 @@ LinNowPlayingForm::~LinNowPlayingForm()
   stopPlaying();
 
   if (dataDialog) delete dataDialog;
+  if (seekDialog) delete seekDialog;
 
   delete ui;
 }
@@ -270,15 +331,17 @@ void LinNowPlayingForm::stopPlaying()
 
   ui->vPlayButton->setEnabled(false);
   ui->hPlayButton->setEnabled(false);
+  setSeeking(false);
+  checkedSeeking = false;
   setPaused(true); // Kind of awkward, but this stops the timer.
+  dataDialog->reset();
+  seekDialog->reset();
 }
 
 
 void LinNowPlayingForm::resizeEvent(
   QResizeEvent *event)
 {
-  QWidget::resizeEvent(event);
-
   if (ui->stackedWidget->width() > ui->stackedWidget->height())
   {
     ui->stackedWidget->setCurrentWidget(ui->horizontalPage);
@@ -306,10 +369,27 @@ void LinNowPlayingForm::on_vPlayButton_clicked()
   pausePlaying();
 }
 
+void LinNowPlayingForm::on_vSeekButton_clicked()
+{
+  seekDialog->setupAndExec(percentagePlayed);
+}
+
+/*
+void LinNowPlayingForm::on_vRewButton_clicked()
+{
+  fastForward();
+}
+
+void LinNowPlayingForm::on_vFFButton_clicked()
+{
+  rewind();
+}
+
 void LinNowPlayingForm::on_vStopButton_clicked()
 {
   stopPlaying();
 }
+*/
 
 void LinNowPlayingForm::on_vInfoButton_clicked()
 {
@@ -321,10 +401,27 @@ void LinNowPlayingForm::on_hPlayButton_clicked()
   pausePlaying();
 }
 
+void LinNowPlayingForm::on_hSeekButton_clicked()
+{
+  seekDialog->setupAndExec(percentagePlayed);
+}
+
+/*
+void LinNowPlayingForm::on_hFFButton_clicked()
+{
+  fastForward();
+}
+
+void LinNowPlayingForm::on_hRewButton_clicked()
+{
+  rewind();
+}
+
 void LinNowPlayingForm::on_hStopButton_clicked()
 {
   stopPlaying();
 }
+*/
 
 void LinNowPlayingForm::on_hInfoButton_clicked()
 {
@@ -439,24 +536,15 @@ void LinNowPlayingForm::updateProgress()
 {
   GstQuery *query;
 
-  // Determine the duration of the stream:
-  gint64 duration = 0;
-  gint64 position = 0;
-
-  query = gst_query_new_duration(GST_FORMAT_TIME);
-
-  if (gst_element_query(runningElement, query))
-  {
-    gst_query_parse_duration(query, NULL, &duration);
-  }
-
-  gst_query_unref(query);
+  gint64 duration = dataDialog->getDuration();
 
   if (duration == 0)
   {
     // Duration not available; no point in continuing any further.
     return;
   }
+
+  gint64 position = 0;
 
   // Determine the position of the stream:
 
@@ -470,11 +558,68 @@ void LinNowPlayingForm::updateProgress()
   gst_query_unref(query);
 
   // Determine the percentage:
-  int percentage = (position * 100) / duration;
+  percentagePlayed = (position * 100) / duration;
 
-  ui->vProgressBar->setValue(percentage);
+  ui->vProgressBar->setValue(percentagePlayed);
   QString percentString;
-  percentString.setNum(percentage);
+  percentString.setNum(percentagePlayed);
   percentString.append("%");
   ui->hPercentageLabel->setText(percentString);
+}
+
+
+void LinNowPlayingForm::setSeeking(
+  bool enableSeeking)
+{
+  checkedSeeking = true;  // No need to check again after this.
+/*
+  ui->hFFButton->setEnabled(enableSeeking);
+  ui->hRewButton->setEnabled(enableSeeking);
+  ui->vFFButton->setEnabled(enableSeeking);
+  ui->vRewButton->setEnabled(enableSeeking);
+*/
+
+  ui->hSeekButton->setEnabled(enableSeeking);
+  ui->vSeekButton->setEnabled(enableSeeking);
+}
+
+
+void LinNowPlayingForm::seekToPercentage(
+  int percentage)
+{
+  gint64 duration = dataDialog->getDuration();
+
+  if (!duration) return;
+
+  gint64 nanoseconds = duration * ((double)percentage / 100);
+
+  gst_element_seek(
+    runningElement, // the GStreamer pipeline
+    1.0,  // the playback rate
+    GST_FORMAT_TIME,  // use units of time (vs frames, bytes, etc.)
+    GST_SEEK_FLAG_FLUSH, // flush all internal buffers with this seek
+    GST_SEEK_TYPE_SET, // go directly to the following location
+    nanoseconds, // the specified location
+    GST_SEEK_TYPE_NONE, // no stop position format
+    GST_CLOCK_TIME_NONE); // no stop position
+}
+
+
+bool LinNowPlayingForm::gstObjectMatches(
+  GstObject *obj)
+{
+  return obj == GST_OBJECT(runningElement);
+}
+
+
+bool LinNowPlayingForm::gstElementQuery(
+  GstQuery *query)
+{
+  return gst_element_query(runningElement, query);
+}
+
+
+void LinNowPlayingForm::setupDataDialog()
+{
+  dataDialog->retrieveDuration(runningElement);
 }

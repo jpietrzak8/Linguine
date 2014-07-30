@@ -22,7 +22,7 @@ DEPLOYMENTFOLDERS = # file1 dir1
 # CONFIG += mobility
 # MOBILITY +=
 
-QT += network maemo5
+QT += network maemo5 webkit
 
 SOURCES += main.cpp mainwindow.cpp \
     linnowplayingform.cpp \
@@ -31,7 +31,13 @@ SOURCES += main.cpp mainwindow.cpp \
     linrssparser.cpp \
     lingstdatadialog.cpp \
     lindocumentationform.cpp \
-    linaboutform.cpp
+    linaboutform.cpp \
+    linfilterdialog.cpp \
+    linseekdialog.cpp \
+    linhtmldisplayform.cpp \
+    lincategorydialog.cpp \
+    lincategorywidgetitem.cpp \
+    linflickabletabbar.cpp
 HEADERS += mainwindow.h \
     linnowplayingform.h \
     linnewsfeedwidgetitem.h \
@@ -39,13 +45,25 @@ HEADERS += mainwindow.h \
     linrssparser.h \
     lingstdatadialog.h \
     lindocumentationform.h \
-    linaboutform.h
+    linaboutform.h \
+    linfilterdialog.h \
+    linseekdialog.h \
+    linhtmldisplayform.h \
+    qwebviewselectionsuppressor.h \
+    lincategorydialog.h \
+    lincategorywidgetitem.h \
+    linflickabletabbar.h \
+    linfilteritems.h
 FORMS += mainwindow.ui \
     linnowplayingform.ui \
     linvideodisplayform.ui \
     lingstdatadialog.ui \
     lindocumentationform.ui \
-    linaboutform.ui
+    linaboutform.ui \
+    linfilterdialog.ui \
+    linseekdialog.ui \
+    linhtmldisplayform.ui \
+    lincategorydialog.ui
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
