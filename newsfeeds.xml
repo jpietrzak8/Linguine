@@ -192,4 +192,124 @@
  <name>BBC Russian Service</name>
 </newsfeed>
 
+<newsfeed
+ url="http://www.theguardian.com/politics/series/politicsweekly/podcast.xml"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>Political Analysis from the Guardian</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.rtve.es/api/programas/1871/audios.rss"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>24 horas</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www1.rfi.fr/radiofr/podcast/journalFrancaisFacile.asp"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>RFI - Journal en français facile 20H TU</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www1.rfi.fr/radiofr/podcast/trancheMonde.asp"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>RFI - Edition Monde 6h00 TU</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.npr.org/rss/podcast.php?id=510296"
+ frequency="weekly"
+ category="news"
+ media="audio">
+ <name>WBUR-FM: On Point with Tom Ashbrook | week in the news Podcast</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.democracynow.org/podcast-video.xml"
+ frequency="daily"
+ category="news"
+ media="video">
+ <name>Democracy Now! Video</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.feedburner.com/TruthdigPodcast"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>Truthdig Podcast</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.tagesschau.de/export/podcast/tagesschau/"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>Tagesschau</name>
+</newsfeed>
+
+<newsfeed
+ url="http://news.google.com/news?pz=1&amp;cf=all&amp;ned=us&amp;hl=en&amp;output=rss"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Google News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.lemonde.fr/c/205/f/3050/index.rss"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Le Monde</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.reuters.com/reuters/topNews?format=xml"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Reuters Top News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.npr.org/rss/rss.php?id=1001"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>NPR Headline News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.cnn.com/rss/cnn_topstories.rss"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>CNN Headline News</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.bbci.co.uk/news/rss.xml"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>BBC Top Stories</name>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.feedburner.com/pri/theworld"
+ frequency="daily"
+ category="news"
+ media="audio">
+ <name>PRI's The World</name>
+</newsfeed>
+
 </linguine>
