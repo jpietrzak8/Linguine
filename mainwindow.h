@@ -25,6 +25,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QNetworkAccessManager>
+#include "linmaemo5theme.h"
 
 class LinFlickableTabBar;
 class LinNowPlayingForm;
@@ -47,19 +48,36 @@ class MainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-    enum ScreenOrientation {
-        ScreenOrientationLockPortrait,
-        ScreenOrientationLockLandscape,
-        ScreenOrientationAuto
-    };
+  enum ScreenOrientation {
+      ScreenOrientationLockPortrait,
+      ScreenOrientationLockLandscape,
+      ScreenOrientationAuto
+  };
 
-    explicit MainWindow(QWidget *parent = 0);
-    virtual ~MainWindow();
+  explicit MainWindow(
+    QWidget *parent = 0);
 
-    // Note that this will only have an effect on Symbian and Fremantle.
-    void setOrientation(ScreenOrientation orientation);
+  virtual ~MainWindow();
 
-    void showExpanded();
+  // Note that this will only have an effect on Symbian and Fremantle.
+  void setOrientation(ScreenOrientation orientation);
+
+  void showExpanded();
+
+  QString getBackgroundColor()
+    { return themeSettings.getBackgroundColor(); }
+
+  QString getDefaultTextColor()
+    { return themeSettings.getDefaultTextColor(); }
+
+  QString getActiveTextColor()
+    { return themeSettings.getActiveTextColor(); }
+
+  QString getSecondaryTextColor()
+    { return themeSettings.getSecondaryTextColor(); }
+
+  QString getSystemFontFamily()
+    { return themeSettings.getSystemFontFamily(); }
 
 private slots:
   void on_mediaListWidget_itemActivated(QListWidgetItem *item);
@@ -111,6 +129,8 @@ private:
 //  LinFilterDialog *filterDialog;
 
   QNetworkAccessManager qnam;
+
+  LinMaemo5Theme themeSettings;
 };
 
 #endif // MAINWINDOW_H

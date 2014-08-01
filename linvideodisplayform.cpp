@@ -28,10 +28,15 @@
 //#include <QNetworkRequest>
 //#include <QNetworkReply>
 #include <gst/interfaces/xoverlay.h>
+#include "mainwindow.h"
 #include "lingstdatadialog.h"
 #include <QMaemo5InformationBox>
 
+#include <QX11Info>
 #include <QDebug>
+
+#include <X11/Xlib.h>
+#include <X11/Xatom.h>
 
 // Some GST defines:
 #define GST_PLAY_FLAG_VIDEO 1
@@ -202,17 +207,19 @@ qDebug() << errString;
 // Now, on to the actual methods:
 
 LinVideoDisplayForm::LinVideoDisplayForm(
-  QWidget *parent)
-  : QWidget(parent),
+  MainWindow *mw)
+  : QWidget(mw),
     ui(new Ui::LinVideoDisplayForm),
 //    fullScreenButton(0),
+//    videoWidget(0),
     xvsink(0),
     runningElement(0),
     gstreamerInUse(false),
     paused(true),
     waitingForBuffer(false),
     checkedSeeking(false),
-    dataDialog(0)
+    dataDialog(0),
+    mainWindow(mw)
 {
   ui->setupUi(this);
 
@@ -222,6 +229,13 @@ LinVideoDisplayForm::LinVideoDisplayForm(
   setWindowFlags(windowFlags() | Qt::Window);
 
 //  fullScreenButton = new LinFullScreenButton(this);
+
+/*
+  ui->overlayStackedWidget->setCurrentWidget(ui->emptyPage);
+  videoWidget = new QWidget(this);
+  videoWidget->setGeometry(12, 12, 776, 420);
+  videoWidget->lower();
+*/
 
   gst_init (NULL, NULL);
 
@@ -267,6 +281,7 @@ void LinVideoDisplayForm::setProgram(
 
 //qDebug() << "winId: " << ui->videoWidget->winId();
   unsigned long windowId = ui->videoWidget->winId();
+//  unsigned long windowId = videoWidget->winId();
   QApplication::syncX();
   gst_x_overlay_set_xwindow_id (
     GST_X_OVERLAY(G_OBJECT(xvsink)),
@@ -352,7 +367,7 @@ void LinVideoDisplayForm::stopPlaying()
   ui->playButton->setEnabled(false);
   setSeeking(false);
   checkedSeeking = false;
-  setPaused(true);
+  if (!paused) setPaused(true);
   ui->seekSlider->setValue(0);
   dataDialog->reset();
 }
@@ -368,6 +383,17 @@ void LinVideoDisplayForm::waitForBuffer()
     waitingForBuffer = true;
   }
 }
+
+
+/*
+void LinVideoDisplayForm::resizeEvent(
+  QResizeEvent *event)
+{
+  QWidget::resizeEvent(event);
+
+//  videoWidget->setGeometry(0, 0, size().width(), size().height());
+}
+*/
 
 
 void LinVideoDisplayForm::closeEvent(
@@ -459,6 +485,20 @@ void LinVideoDisplayForm::on_infoButton_clicked()
 }
 
 
+/*
+void LinVideoDisplayForm::on_openUIButton_clicked()
+{
+  ui->overlayStackedWidget->setCurrentWidget(ui->controlsPage);
+}
+
+
+void LinVideoDisplayForm::on_closeUIButton_clicked()
+{
+  ui->overlayStackedWidget->setCurrentWidget(ui->emptyPage);
+}
+*/
+
+
 void LinVideoDisplayForm::setTitle(
   QString title)
 {
@@ -487,11 +527,13 @@ void LinVideoDisplayForm::setPaused(
 
   if (paused)
   {
+    setDND(false);
     ui->playButton->setIcon(QIcon(":/icons/playback_play_icon&48.png"));
     timer.stop();
   }
   else
   {
+    setDND(true);
     ui->playButton->setIcon(QIcon(":/icons/playback_pause_icon&48.png"));
     timer.start(1000);
   }
@@ -590,4 +632,49 @@ bool LinVideoDisplayForm::gstElementQuery(
 void LinVideoDisplayForm::setupDataDialog()
 {
   dataDialog->retrieveDuration(runningElement);
+}
+
+
+//
+// The _HILDON_DO_NOT_DISTURB flag suppresses any non-critical popup messages
+// from appearing.  It also (for some reason) suppresses the screensaver.
+// Note: when this atom is removed, it seems as though you need to give
+// Maemo some sort of signal to restart the screensaver...
+//
+void LinVideoDisplayForm::setDND(
+  bool dndFlag)
+{
+  Atom atom =
+    XInternAtom(
+      QX11Info::display(),
+      "_HILDON_DO_NOT_DISTURB",
+      false);
+
+  if (!atom)
+  {
+    qWarning("Failed to obtain X11 _HILDON_DO_NOT_DISTURB atom.");
+    return;
+  }
+
+  if (dndFlag)
+  {
+    long state = 1;
+
+    XChangeProperty(
+      QX11Info::display(),
+      winId(),
+      atom,
+      XA_INTEGER,
+      32,
+      PropModeReplace,
+      (unsigned char *) &state,
+      1);
+  }
+  else
+  {
+    XDeleteProperty(
+      QX11Info::display(),
+      winId(),
+      atom);
+  }
 }

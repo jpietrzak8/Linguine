@@ -226,7 +226,14 @@ void MainWindow::retrieveNewsfeeds(
 
     LinNewsfeedWidgetItem *nwi =
       new LinNewsfeedWidgetItem(
-        name, url, freq, category, media, language, &qnam);
+        name,
+        url,
+        freq,
+        category,
+        media,
+        language,
+        getActiveTextColor(),
+        &qnam);
 
     ui->mediaListWidget->addItem(nwi);
 
@@ -374,7 +381,15 @@ void MainWindow::parseLinguineElement(
         settings.setArrayIndex(index++);
         LinNewsfeedWidgetItem *nwi =
           new LinNewsfeedWidgetItem(
-            name, url, freq, category, media, language, &qnam, settings);
+            name,
+            url,
+            freq,
+            category,
+            media,
+            language,
+            getActiveTextColor(),
+            &qnam,
+            settings);
 
         ui->mediaListWidget->addItem(nwi);
 

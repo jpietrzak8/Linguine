@@ -26,11 +26,13 @@
 #include <QWidget>
 #include <QString>
 
+class MainWindow;
 class QNetworkAccessManager;
 class QNetworkReply;
 class QXmlStreamReader;
 class QWebViewSelectionSuppressor;
 class QCloseEvent;
+class QUrl;
 
 namespace Ui {
 class LinHtmlDisplayForm;
@@ -42,7 +44,7 @@ class LinHtmlDisplayForm : public QWidget
   
 public:
   LinHtmlDisplayForm(
-    QWidget *parent,
+    MainWindow *mainWindow,
     QNetworkAccessManager *qnam);
 
   ~LinHtmlDisplayForm();
@@ -55,6 +57,9 @@ protected:
     QCloseEvent *event);
 
 private slots:
+  void onLinkClicked(
+    const QUrl &url);
+
   void parseRSSFeed();
   
 private:
@@ -71,10 +76,16 @@ private:
 
   Ui::LinHtmlDisplayForm *ui;
 
+  MainWindow *mainWindow;
+
   QString sourceUrl;
   QNetworkAccessManager *qnam;
   QNetworkReply *reply;
   QWebViewSelectionSuppressor *suppressor;
+
+  QString blankHtmlPage;
+
+  bool useExternalBrowser;
 };
 
 #endif // LINHTMLDISPLAYFORM_H

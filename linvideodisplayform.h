@@ -31,6 +31,9 @@
 
 //class LinFullScreenButton;
 class LinGstDataDialog;
+class MainWindow;
+class QResizeEvent;
+class QCloseEvent;
 
 namespace Ui {
 class LinVideoDisplayForm;
@@ -41,7 +44,9 @@ class LinVideoDisplayForm : public QWidget
   Q_OBJECT
   
 public:
-  explicit LinVideoDisplayForm(QWidget *parent = 0);
+  LinVideoDisplayForm(
+    MainWindow *mw);
+
   ~LinVideoDisplayForm();
 
   void waitForBuffer();
@@ -82,6 +87,9 @@ public slots:
 //  void returnFromFullscreen();
 
 protected:
+//  void resizeEvent(
+//    QResizeEvent *event);
+
   void closeEvent(
     QCloseEvent *event);
 
@@ -91,6 +99,8 @@ private slots:
 //  void on_seekButton_clicked();
 //  void on_stopButton_clicked();
   void on_infoButton_clicked();
+//  void on_openUIButton_clicked();
+//  void on_closeUIButton_clicked();
   void on_seekSlider_sliderMoved(
     int percentage);
 
@@ -100,9 +110,14 @@ private:
   void setPaused(
     bool p);
 
+  void setDND(
+    bool dndFlag);
+
   Ui::LinVideoDisplayForm *ui;
 
 //  LinFullScreenButton *fullScreenButton;
+
+//  QWidget *videoWidget;
 
   GstElement *xvsink;
   GstElement *runningElement;
@@ -114,6 +129,8 @@ private:
 
   LinGstDataDialog *dataDialog;
   QTimer timer;
+
+  MainWindow *mainWindow;
 };
 
 #endif // LINVIDEODISPLAYFORM_H

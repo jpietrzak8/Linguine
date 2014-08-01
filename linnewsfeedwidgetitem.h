@@ -43,6 +43,7 @@ public:
     ContentType category,
     MediaType media,
     LanguageType language,
+    QString activeTextColor,
     QNetworkAccessManager *qnam);
 
   LinNewsfeedWidgetItem(
@@ -52,6 +53,7 @@ public:
     ContentType category,
     MediaType media,
     LanguageType language,
+    QString activeTextColor,
     QNetworkAccessManager *qnam,
     QSettings &settings);
 
@@ -106,6 +108,7 @@ private:
   QPixmap image;
   QString itemTitle;
   QString mediaUrl;
+  QString activeTextColor;
   QNetworkAccessManager *qnam;
 
   LinRSSParser *parser;

@@ -23,10 +23,12 @@
 #include "linhtmldisplayform.h"
 #include "ui_linhtmldisplayform.h"
 
+#include "mainwindow.h"
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QXmlStreamReader>
 #include <QMaemo5InformationBox>
+#include <QDesktopServices>
 
 #include <QDebug>
 
@@ -35,13 +37,15 @@
 #define MEDIA_NS "http://search.yahoo.com/mrss/"
 
 LinHtmlDisplayForm::LinHtmlDisplayForm(
-  QWidget *parent,
+  MainWindow *mw,
   QNetworkAccessManager *q)
-  : QWidget(parent),
+  : QWidget(mw),
     ui(new Ui::LinHtmlDisplayForm),
+    mainWindow(mw),
     qnam(q),
     reply(0),
-    suppressor(0)
+    suppressor(0),
+    useExternalBrowser(true)
 {
   ui->setupUi(this);
 
@@ -49,6 +53,23 @@ LinHtmlDisplayForm::LinHtmlDisplayForm(
   setWindowFlags(windowFlags() | Qt::Window);
 
   suppressor = new QWebViewSelectionSuppressor(ui->htmlDisplay);
+
+  blankHtmlPage = "<html><head><style type=\"text/css\">body{background-color: ";
+  blankHtmlPage += mainWindow->getBackgroundColor();
+  blankHtmlPage += ";}</style></head><body></body></html>";
+
+  // Initialize the display:
+  ui->htmlDisplay->setHtml(blankHtmlPage);
+
+  // Manage links:
+  ui->htmlDisplay->page()->setLinkDelegationPolicy(
+    QWebPage::DelegateExternalLinks);
+
+  connect(
+    ui->htmlDisplay->page(),
+    SIGNAL(linkClicked(const QUrl &)),
+    this,
+    SLOT(onLinkClicked(const QUrl &)));
 }
 
 
@@ -81,8 +102,22 @@ void LinHtmlDisplayForm::closeEvent(
   // in the background:
   ui->htmlDisplay->stop();
 
-  // Try to erase everything on the page:
-  ui->htmlDisplay->setHtml("<html><head></head><body></body></html>");
+  // Reset the page:
+  ui->htmlDisplay->setHtml(blankHtmlPage);
+}
+
+
+void LinHtmlDisplayForm::onLinkClicked(
+  const QUrl &url)
+{
+  if (useExternalBrowser)
+  {
+    QDesktopServices::openUrl(url);
+  }
+  else
+  {
+    ui->htmlDisplay->load(url);
+  }
 }
 
 
@@ -132,6 +167,18 @@ void LinHtmlDisplayForm::parseRSSChannel(
   htmlOutput += "  <style type=\"text/css\">\n";
   htmlOutput += "   img {max-width: 100%; height: auto;}\n";
 //  htmlOutput += "   body {-webkit-user-select: none;}\n";
+  htmlOutput += "   body {\n";
+  htmlOutput += "    color: " + mainWindow->getDefaultTextColor() + ";\n";
+  htmlOutput += "    background-color: " + mainWindow->getBackgroundColor() + ";\n";
+  htmlOutput += "    font-family: \"" + mainWindow->getSystemFontFamily() + "\", sans-serif;\n";
+  htmlOutput += "    font-size: x-large;\n";
+  htmlOutput += "   }\n";
+  htmlOutput += "   a:link {\n";
+  htmlOutput += "    color: " + mainWindow->getActiveTextColor() + ";\n";
+  htmlOutput += "   }\n";
+  htmlOutput += "   a:visited {\n";
+  htmlOutput += "    color: " + mainWindow->getSecondaryTextColor() + ";\n";
+  htmlOutput += "   }\n";
   htmlOutput += "  </style>\n";
   // Finish the head portion, start the body:
   htmlOutput += " </head>\n <body>\n";
@@ -170,6 +217,7 @@ void LinHtmlDisplayForm::parseRSSItem(
   QString link;
   QString imageUrl;
   QString description;
+  bool mediaContentAlreadySeen = false;
 
   while (!textReader.atEnd())
   {
@@ -197,15 +245,31 @@ void LinHtmlDisplayForm::parseRSSItem(
         // For some reason, BBC throws two thumbnails into each item.
         // The second one is always bigger, so we'll just let it overwrite
         // the first one.
-        if (QString::compare(
-             textReader.namespaceUri().toString(),
-             MEDIA_NS,
-             Qt::CaseInsensitive) == 0)
+        // Also, the Australian BC puts both "content" and "thumbnail"
+        // images into its rss; if content has already been seen, I'll just
+        // ignore the thumbnail:
+        if ( !mediaContentAlreadySeen
+          && QString::compare(
+            textReader.namespaceUri().toString(),
+            MEDIA_NS,
+            Qt::CaseInsensitive) == 0
+          && textReader.attributes().hasAttribute("url"))
         {
-          if (textReader.attributes().hasAttribute("url"))
-          {
-            imageUrl = textReader.attributes().value("url").toString();
-          }
+          imageUrl = textReader.attributes().value("url").toString();
+        }
+      }
+      else if (textReader.name() == "content")
+      {
+        // If there are multiple content items, choose the first one:
+        if ( !mediaContentAlreadySeen
+          && QString::compare(
+            textReader.namespaceUri().toString(),
+            MEDIA_NS,
+            Qt::CaseInsensitive) == 0
+          && textReader.attributes().hasAttribute("url"))
+        {
+          imageUrl = textReader.attributes().value("url").toString();
+          mediaContentAlreadySeen = true;
         }
       }
       else if (textReader.name() == "description")
@@ -287,3 +351,4 @@ QString LinHtmlDisplayForm::parseRSSText(
 
   return textString;
 }
+

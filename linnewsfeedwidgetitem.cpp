@@ -35,6 +35,7 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   ContentType c,
   MediaType m,
   LanguageType l,
+  QString a,
   QNetworkAccessManager *q)
   : alreadyParsed(false),
     name(n),
@@ -43,10 +44,12 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
     category(c),
     media(m),
     language(l),
+    activeTextColor(a),
     qnam(q),
     parser(0)
 {
 //  parser = new LinRSSParser(this, sourceUrl, qnam);
+  setText(name);
 }
 
 
@@ -57,6 +60,7 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   ContentType c,
   MediaType m,
   LanguageType l,
+  QString a,
   QNetworkAccessManager *q,
   QSettings &settings)
   : alreadyParsed(false),
@@ -66,10 +70,12 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
     category(c),
     media(m),
     language(l),
+    activeTextColor(a),
     qnam(q),
     parser(0)
 {
 //  parser = new LinRSSParser(this, sourceUrl, qnam);
+  setText(name);
 
   settings.setValue("name", name);
   settings.setValue("url", sourceUrl);
@@ -110,6 +116,11 @@ void LinNewsfeedWidgetItem::setItemTitle(
   QString s)
 {
   itemTitle = s;
+
+//  QString tempString = name;
+//  tempString += "\n\t";
+//  tempString += itemTitle;
+
   setText(itemTitle);
 }
 

@@ -1,3 +1,11 @@
+linguine (0.2.1) unstable; urgency=low
+  * With help from Marxian, the screen backlight now stays on while videos are playing.
+  * With help from Marxian, links in the text RSS display are now opened in the default web browser, rather than in Linguine itself.
+  * With help from Marxian, the text RSS display should now be displayed in the same color scheme as the user's chosen theme.
+  * Thanks Marxian!
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Thu, 31 Jul 2014 20:27:44 -0400
+
 linguine (0.2.0) unstable; urgency=low
   * Switched to a category-based filtering system.  Categories are now displayed at the top of the main screen in a scrollable tab bar.
   * Inital support added for textual RSS news feeds.  Text newsfeeds are displayed as html in a new window using a qwebview widget.

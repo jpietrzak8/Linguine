@@ -37,7 +37,8 @@ SOURCES += main.cpp mainwindow.cpp \
     linhtmldisplayform.cpp \
     lincategorydialog.cpp \
     lincategorywidgetitem.cpp \
-    linflickabletabbar.cpp
+    linflickabletabbar.cpp \
+    linmaemo5theme.cpp
 HEADERS += mainwindow.h \
     linnowplayingform.h \
     linnewsfeedwidgetitem.h \
@@ -53,7 +54,8 @@ HEADERS += mainwindow.h \
     lincategorydialog.h \
     lincategorywidgetitem.h \
     linflickabletabbar.h \
-    linfilteritems.h
+    linfilteritems.h \
+    linmaemo5theme.h
 FORMS += mainwindow.ui \
     linnowplayingform.ui \
     linvideodisplayform.ui \
