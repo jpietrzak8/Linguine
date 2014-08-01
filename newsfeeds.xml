@@ -1,5 +1,38 @@
 <linguine>
 
+<collection
+ frequency="hourly"
+ category="news">
+ <name>Audio Headlines</name>
+</collection>
+
+<collection
+ category="news"
+ media="text">
+ <name>Text News</name>
+</collection>
+
+<collection
+ category="news"
+ media="audio">
+ <name>Audio News</name>
+</collection>
+
+<collection
+ category="news"
+ media="video">
+ <name>Video News</name>
+</collection>
+
+<collection
+ category="politics">
+ <name>Politics</name>
+</collection>
+
+<collection>
+ <name>Everything</name>
+</collection>
+
 <newsfeed
  url="http://www.npr.org/rss/podcast.php?id=500005"
  frequency="hourly"
@@ -310,6 +343,38 @@
  category="news"
  media="audio">
  <name>PRI's The World</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.radio-canada.ca/fils/nouvelles/nouvelles.xml"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>Radio-Canada | Grands titres</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.radio-canada.ca/balado/radio/bulletinnational.xml"
+ frequency="hourly"
+ category="news"
+ media="audio">
+ <name>Les bulletins de nouvelles nationaux</name>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.cnn.com/services/podcasting/sotu/rss.xml"
+ frequency="weekly"
+ category="politics"
+ media="audio">
+ <name>CNN State of the Union</name>
+</newsfeed>
+
+<newsfeed
+ url="http://www.abc.net.au/news/feed/45910/rss.xml"
+ frequency="other"
+ category="news"
+ media="text">
+ <name>ABC Top Stories</name>
 </newsfeed>
 
 </linguine>
