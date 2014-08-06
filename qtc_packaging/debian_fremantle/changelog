@@ -1,3 +1,19 @@
+linguine (0.2.4) unstable; urgency=low
+  * Collections of feeds can now be defined in the newsfeeds xml file.
+  * Each newsfeed can now be given an arbitrary number of user-defined tags; these tags can then be used when creating collections.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Wed, 06 Aug 2014 19:21:07 -0400
+
+linguine (0.2.3) unstable; urgency=low
+  * Adds the ability to run audio / video media in the default media player.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Fri, 01 Aug 2014 23:16:15 -0400
+
+linguine (0.2.2) unstable; urgency=low
+  * A quick update to set the window name to that of the newsfeed currently being viewed.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Fri, 01 Aug 2014 08:41:22 -0400
+
 linguine (0.2.1) unstable; urgency=low
   * With help from Marxian, the screen backlight now stays on while videos are playing.
   * With help from Marxian, links in the text RSS display are now opened in the default web browser, rather than in Linguine itself.

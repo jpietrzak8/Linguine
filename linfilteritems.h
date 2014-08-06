@@ -40,15 +40,7 @@ enum MediaType
   Audio_Media,
   Video_Media,
   Text_Media
-};
-
-
-enum ContentType
-{
-  Any_Content,
-  News_Content,
-  Politics_Content,
-  Other_Content
+//  Image_Media
 };
 
 

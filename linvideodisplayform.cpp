@@ -261,12 +261,16 @@ LinVideoDisplayForm::~LinVideoDisplayForm()
 
 
 void LinVideoDisplayForm::setProgram(
-  QString title,
+  QString feedName,
+  QString summary,
+  QString pubDate,
   QString mediaUrl)
 {
   if (gstreamerInUse) stopPlaying();
 
-//  ui->titleLabel->setText(title);
+  setWindowTitle(feedName);
+  dataDialog->setSummary(summary);
+  dataDialog->setPubDate(pubDate);
 
 //  GstElement *xvsink = gst_element_factory_make("xvimagesink", "xvsink");
   xvsink = gst_element_factory_make("xvimagesink", "xvsink");

@@ -2,31 +2,42 @@
 
 <collection
  frequency="hourly"
- category="news">
+ media="audio">
  <name>Audio Headlines</name>
+ <requiredTag>news</requiredTag>
 </collection>
 
 <collection
- category="news"
  media="text">
  <name>Text News</name>
+ <requiredTag>news</requiredTag>
 </collection>
 
 <collection
- category="news"
  media="audio">
  <name>Audio News</name>
+ <requiredTag>news</requiredTag>
 </collection>
 
 <collection
- category="news"
  media="video">
  <name>Video News</name>
+ <requiredTag>news</requiredTag>
 </collection>
 
-<collection
- category="politics">
+<collection>
  <name>Politics</name>
+ <requiredTag>politics</requiredTag>
+</collection>
+
+<collection>
+ <name>Science</name>
+ <requiredTag>science</requiredTag>
+</collection>
+
+<collection>
+ <name>Comics</name>
+ <requiredTag>comics</requiredTag>
 </collection>
 
 <collection>
@@ -36,345 +47,418 @@
 <newsfeed
  url="http://www.npr.org/rss/podcast.php?id=500005"
  frequency="hourly"
- category="news"
  media="audio">
  <name>NPR Headline News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.foxnewsradio.com/foxnewsradio"
  frequency="hourly"
- category="news"
  media="audio">
  <name>Fox News Radio Headline News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.nhk.or.jp/r-news/podcast/nhkradionews.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>NHK Radio News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.wsjonline.com/wsj/podcast_wall_street_journal_this_morning?format=xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>Wall Street Journal This Morning</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://downloads.bbc.co.uk/podcasts/worldservice/newshour/rss.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>BBC Newshour</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.feedburner.com/NewshourFullProgramPodcast?format=xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>PBS Newshour</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.cnn.com/services/podcasting/ac360audio/rss"
  frequency="daily"
- category="news"
  media="audio">
  <name>CNN Anderson Cooper 360</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
   url="http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-Nightly.xml"
   frequency="daily"
- category="news"
   media="audio">
  <name>NBC Nightly News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://abcnews.go.com/xmldata/xmlPodcast?id=868748&amp;src=i"
  frequency="daily"
- category="news"
  media="audio">
  <name>ABC Nightline</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.feedburner.com/SlatePoliticalGabfest"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>Slate Political Gabfest</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.cbsnews.com/podcast_eveningnews_video_1?format=xml"
  frequency="daily"
- category="news"
  media="video">
  <name>CBS Evening News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.npr.org/rss/podcast.php?id=510053"
  frequency="daily"
- category="news"
  media="audio">
  <name>On Point with Tom Ashbrook</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.npr.org/rss/podcast.php?id=1056"
  frequency="daily"
- category="news"
  media="audio">
  <name>NPR World Story of the Day</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.reuters.com/reuters/video/quickcut/rss/mp4/"
  frequency="other"
- category="news"
  media="video">
  <name>Reuters Top News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.cnn.com/services/podcasting/ac360/rss"
  frequency="daily"
- category="news"
  media="video">
  <name>Anderson Cooper 360</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.mprnews.org/podcasts/political-junkie/"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>Political Junkie with Ken Rudin</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.cbc.ca/podcasting/includes/hourlynews.xml"
  frequency="hourly"
- category="news"
  media="audio">
  <name>CBC News: Hourly Edition</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.cbc.ca/podcasting/includes/wr.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>CBC News: World Report</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-MTP.xml"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>NBC Meet the Press</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://podcastfeeds.nbcnews.com/audio/podcast/MSNBC-TDY-PODCAST-MP3.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>NBC The Today Show</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.nhk.or.jp/rj/podcast/rss/english.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>English News - NHK World Radio Japan</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://downloads.bbc.co.uk/podcasts/worldservice/globalnews/rss.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>BBC Global News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.feedburner.com/NewshourPoliticalWrapPodcast?format=xml"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>PBS Newshour Shields &amp; Brooks</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://downloads.bbc.co.uk/podcasts/worldservice/bbseva/rss.xml"
  frequency="daily"
- category="news"
  media="audio">
  <name>BBC Russian Service</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.theguardian.com/politics/series/politicsweekly/podcast.xml"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>Political Analysis from the Guardian</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.rtve.es/api/programas/1871/audios.rss"
  frequency="daily"
- category="news"
  media="audio">
  <name>24 horas</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www1.rfi.fr/radiofr/podcast/journalFrancaisFacile.asp"
  frequency="daily"
- category="news"
  media="audio">
  <name>RFI - Journal en français facile 20H TU</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www1.rfi.fr/radiofr/podcast/trancheMonde.asp"
  frequency="daily"
- category="news"
  media="audio">
  <name>RFI - Edition Monde 6h00 TU</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.npr.org/rss/podcast.php?id=510296"
  frequency="weekly"
- category="news"
  media="audio">
  <name>WBUR-FM: On Point with Tom Ashbrook | week in the news Podcast</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.democracynow.org/podcast-video.xml"
  frequency="daily"
- category="news"
  media="video">
  <name>Democracy Now! Video</name>
+ <tag>news</tag>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.feedburner.com/TruthdigPodcast"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>Truthdig Podcast</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.tagesschau.de/export/podcast/tagesschau/"
  frequency="daily"
- category="news"
  media="audio">
  <name>Tagesschau</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://news.google.com/news?pz=1&amp;cf=all&amp;ned=us&amp;hl=en&amp;output=rss"
  frequency="other"
- category="news"
  media="text">
  <name>Google News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.lemonde.fr/c/205/f/3050/index.rss"
  frequency="other"
- category="news"
  media="text">
  <name>Le Monde</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.reuters.com/reuters/topNews?format=xml"
  frequency="other"
- category="news"
  media="text">
  <name>Reuters Top News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.npr.org/rss/rss.php?id=1001"
  frequency="other"
- category="news"
  media="text">
  <name>NPR Headline News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.cnn.com/rss/cnn_topstories.rss"
  frequency="other"
- category="news"
  media="text">
  <name>CNN Headline News</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.bbci.co.uk/news/rss.xml"
  frequency="other"
- category="news"
  media="text">
  <name>BBC Top Stories</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://feeds.feedburner.com/pri/theworld"
  frequency="daily"
- category="news"
  media="audio">
  <name>PRI's The World</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.radio-canada.ca/fils/nouvelles/nouvelles.xml"
  frequency="other"
- category="news"
  media="text">
  <name>Radio-Canada | Grands titres</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.radio-canada.ca/balado/radio/bulletinnational.xml"
  frequency="hourly"
- category="news"
  media="audio">
  <name>Les bulletins de nouvelles nationaux</name>
+ <tag>news</tag>
 </newsfeed>
 
 <newsfeed
  url="http://rss.cnn.com/services/podcasting/sotu/rss.xml"
  frequency="weekly"
- category="politics"
  media="audio">
  <name>CNN State of the Union</name>
+ <tag>politics</tag>
 </newsfeed>
 
 <newsfeed
  url="http://www.abc.net.au/news/feed/45910/rss.xml"
  frequency="other"
- category="news"
  media="text">
  <name>ABC Top Stories</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://krpoliticaljunkie.com/feed/podcast"
+ frequency="weekly"
+ media="audio">
+ <name>Ken Rudin’s Political Junkie</name>
+ <tag>politics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.thenews.pl/Podcast/3400205c-fc14-4f1d-bd27-4fdaa1162a3d"
+ frequency="daily"
+ media="audio">
+ <name>News from Poland</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.voanews.com/podcast/?count=20&amp;zoneId=1451"
+ frequency="other"
+ media="audio">
+ <name>International Edition - Voice of America</name>
+ <tag>news</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://xkcd.com/rss.xml"
+ frequency="other"
+ media="text">
+ <name>xkcd.com</name>
+ <tag>comics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.sciencemag.org/rss/podcast.xml"
+ frequency="weekly"
+ media="audio">
+ <name>Science Magazine Podcast</name>
+ <tag>science</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://www.sciencefriday.com/audio/scifriaudio.xml"
+ frequency="weekly"
+ media="audio">
+ <name>Science Friday Audio Podcast</name>
+ <tag>science</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://downloads.bbc.co.uk/podcasts/radio4/timc/rss.xml"
+ frequency="weekly"
+ media="audio">
+ <name>The Infinite Monkey Cage</name>
+ <tag>science</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.wnyc.org/radiolab?format=xml"
+ frequency="other"
+ media="audio">
+ <name>Radiolab from WNYC</name>
+ <tag>science</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.soundcloud.com/users/soundcloud:users:38128127/sounds.rss"
+ frequency="other"
+ media="audio">
+ <name>StarTalk Radio</name>
+ <tag>science</tag>
 </newsfeed>
 
 </linguine>

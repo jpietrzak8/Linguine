@@ -63,6 +63,14 @@ LinMaemo5Theme::LinMaemo5Theme()
 
   secondaryTextColor = "rgb(" + red + ", " + green + ", " + blue + ")";
 
+  color = QMaemo5Style::standardColor("AccentColor1");
+
+  red.setNum(color.red());
+  green.setNum(color.green());
+  blue.setNum(color.blue());
+
+  accentColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+
   QFont font = QMaemo5Style::standardFont("SystemFont");
 
   systemFontFamily = font.family();

@@ -1,7 +1,7 @@
 //
-// lincategorywidgetitem.cpp
+// lindbus.h
 //
-// Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
+// Copyright 2013 by John Pietrzak  (jpietrzak8@gmail.com)
 //
 // This file is part of Linguine.
 //
@@ -20,49 +20,25 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#include "lincategorywidgetitem.h"
+#ifndef LINDBUS_H
+#define LINDBUS_H
 
-LinCategoryWidgetItem::LinCategoryWidgetItem(
-  QString title)
-  : QListWidgetItem(title)
+#include <QString>
+
+class QDBusInterface;
+
+class LinDBus
 {
-  frequency = Any_Rate;
-  media = Any_Media;
-  content = Any_Content;
-  language = Any_Language;
-}
+public:
+  LinDBus();
 
+  ~LinDBus();
 
-void LinCategoryWidgetItem::setFrequency(
-  FrequencyType f)
-{
-  frequency = f;
-}
+  void launchMedia(
+    QString mediaUrl);
 
+private:
+  QDBusInterface *mediaplayer;
+};
 
-void LinCategoryWidgetItem::setMedia(
-  MediaType m)
-{
-  media = m;
-}
-
-
-void LinCategoryWidgetItem::setContent(
-  ContentType c)
-{
-  content = c;
-}
-
-
-void LinCategoryWidgetItem::setLanguage(
-  LanguageType l)
-{
-  language = l;
-}
-
-
-void LinCategoryWidgetItem::setTag(
-  QString t)
-{
-  tag = t;
-}
+#endif // LINDBUS_H

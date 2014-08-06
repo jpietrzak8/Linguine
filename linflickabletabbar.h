@@ -13,7 +13,7 @@ public:
   LinFlickableTabBar(
     QWidget *parent);
 
-  bool matchesCurrentCategory(
+  bool matchesCurrentCollection(
     LinNewsfeedWidgetItem *nwi);
 };
 

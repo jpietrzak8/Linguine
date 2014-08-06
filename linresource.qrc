@@ -12,5 +12,6 @@
         <file>icons/arrow_two_head_icon&amp;48.png</file>
         <file>icons/arrow_bottom_rigth_icon&amp;48.png</file>
         <file>icons/arrow_top_left_icon&amp;48.png</file>
+        <file>icons/podcast_icon&amp;48.png</file>
     </qresource>
 </RCC>

@@ -21,8 +21,10 @@
 //
 
 #include "linflickabletabbar.h"
-#include "lincategorywidgetitem.h"
+#include "lincollectionwidgetitem.h"
 #include "linnewsfeedwidgetitem.h"
+
+#include <QDebug>
 
 LinFlickableTabBar::LinFlickableTabBar(
   QWidget *parent)
@@ -54,62 +56,14 @@ LinFlickableTabBar::LinFlickableTabBar(
         "stop: 0.5 rgba(48, 48, 48, 255),"
         "stop: 1 rgba(0, 0, 0, 255));"
     "}");
-
-  // Initialize the tab bar.  First, the news headlines:
-  LinCategoryWidgetItem *headlinesItem = 
-    new LinCategoryWidgetItem("Audio Headlines");
-
-  headlinesItem->setFrequency(Hourly_Rate);
-  headlinesItem->setContent(News_Content);
-
-  addItem(headlinesItem);
-
-  LinCategoryWidgetItem *textItem = 
-    new LinCategoryWidgetItem("Text News");
-
-  textItem->setMedia(Text_Media);
-  textItem->setContent(News_Content);
-
-  addItem(textItem);
-
-  LinCategoryWidgetItem *audioItem =
-    new LinCategoryWidgetItem("Audio News");
-
-  audioItem->setMedia(Audio_Media);
-  audioItem->setContent(News_Content);
-
-  addItem(audioItem);
-
-  LinCategoryWidgetItem *videoItem =
-    new LinCategoryWidgetItem("Video News");
-
-  videoItem->setMedia(Video_Media);
-  videoItem->setContent(News_Content);
-
-  addItem(videoItem);
-
-  LinCategoryWidgetItem *politicsItem =
-    new LinCategoryWidgetItem("Politics");
-
-  politicsItem->setContent(Politics_Content);
-
-  addItem(politicsItem);
-
-  LinCategoryWidgetItem *allItem =
-    new LinCategoryWidgetItem("Everything");
-
-  addItem(allItem);
-
-  // Set the tab bar to the first item:
-  setCurrentRow(0);
 }
 
 
-bool LinFlickableTabBar::matchesCurrentCategory(
+bool LinFlickableTabBar::matchesCurrentCollection(
   LinNewsfeedWidgetItem *nwi)
 {
-  LinCategoryWidgetItem *cwi =
-    dynamic_cast<LinCategoryWidgetItem *>(currentItem());
+  LinCollectionWidgetItem *cwi =
+    dynamic_cast<LinCollectionWidgetItem *>(currentItem());
 
   FrequencyType itemFreq = nwi->getFrequency();
   FrequencyType catFreq = cwi->getFrequency();
@@ -131,16 +85,6 @@ bool LinFlickableTabBar::matchesCurrentCategory(
     return false;
   }
 
-  ContentType itemContent = nwi->getContent();
-  ContentType catContent = cwi->getContent();
-
-  if ( (itemContent != Any_Content)
-    && (catContent != Any_Content)
-    && (itemContent != catContent))
-  {
-    return false;
-  }
-
   LanguageType itemLang = nwi->getLanguage();
   LanguageType catLang = cwi->getLanguage();
 
@@ -151,7 +95,18 @@ bool LinFlickableTabBar::matchesCurrentCategory(
     return false;
   }
 
-  // We'll handle the tags later...
+  QSet<QString>::const_iterator index = cwi->requiredTagsBegin();
+  QSet<QString>::const_iterator end = cwi->requiredTagsEnd();
+
+  while (index != end)
+  {
+    if (!nwi->hasTag(*index))
+    {
+      return false;
+    }
+
+    ++index;
+  }
 
   return true;
 }

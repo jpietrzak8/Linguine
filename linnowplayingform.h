@@ -69,8 +69,11 @@ public:
 
 public slots:
   void setProgram(
+    QString feedName,
     QPixmap image,
     QString title,
+    QString summary,
+    QString pubDate,
     QString mediaUrl);
 
   void pausePlaying();

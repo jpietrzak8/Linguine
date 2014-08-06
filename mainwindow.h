@@ -25,6 +25,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QNetworkAccessManager>
+#include "linfilteritems.h"
 #include "linmaemo5theme.h"
 
 class LinFlickableTabBar;
@@ -34,10 +35,11 @@ class LinHtmlDisplayForm;
 class QListWidgetItem;
 class LinNewsfeedWidgetItem;
 class QXmlStreamReader;
+class LinPreferencesForm;
 class LinDocumentationForm;
 class LinAboutForm;
 class QSettings;
-//class LinFilterDialog;
+class LinDBus;
 
 namespace Ui {
   class MainWindow;
@@ -76,6 +78,9 @@ public:
   QString getSecondaryTextColor()
     { return themeSettings.getSecondaryTextColor(); }
 
+  QString getAccentColor()
+    { return themeSettings.getAccentColor(); }
+
   QString getSystemFontFamily()
     { return themeSettings.getSystemFontFamily(); }
 
@@ -85,17 +90,12 @@ private slots:
   void on_actionManage_Categories_triggered();
   void on_actionLoad_Newsfeeds_File_triggered();
   void on_actionReset_Newsfeeds_triggered();
+  void on_actionPreferences_triggered();
   void on_actionDocumentation_triggered();
   void on_actionAbout_triggered();
 
-/*
-  void on_frequencyComboBox_currentIndexChanged(int index);
-  void on_categoryComboBox_currentIndexChanged(int index);
-*/
-
 //  void on_filterButton_clicked();
 
-//  void refilter();
   void refilter(QListWidgetItem *item);
 
 private:
@@ -108,7 +108,14 @@ private:
   void parseLinguineElement(
     QXmlStreamReader &reader);
 
-  QString parseNameElement(
+  void parseNewsfeedElement(
+    QString &name,
+    QSet<QString> &tags,
+    QXmlStreamReader &reader);
+
+  void parseCollectionElement(
+    QString &name,
+    QSet<QString> &tags,
     QXmlStreamReader &reader);
 
   QString parseText(
@@ -118,15 +125,22 @@ private:
   void filterItem(
     LinNewsfeedWidgetItem *nwi);
 
+  FrequencyType parseFrequency(
+    QString freqStr);
+
+  MediaType parseMedia(
+    QString mediaStr);
+
   Ui::MainWindow *ui;
 
   LinFlickableTabBar *flickableTabBar;
   LinNowPlayingForm *nowPlayingForm;
   LinVideoDisplayForm *videoDisplayForm;
   LinHtmlDisplayForm *htmlDisplayForm;
+  LinPreferencesForm *preferencesForm;
   LinDocumentationForm *documentationForm;
   LinAboutForm *aboutForm;
-//  LinFilterDialog *filterDialog;
+  LinDBus *dbus;
 
   QNetworkAccessManager qnam;
 

@@ -22,7 +22,7 @@ DEPLOYMENTFOLDERS = # file1 dir1
 # CONFIG += mobility
 # MOBILITY +=
 
-QT += network maemo5 webkit
+QT += network maemo5 webkit dbus
 
 SOURCES += main.cpp mainwindow.cpp \
     linnowplayingform.cpp \
@@ -35,10 +35,12 @@ SOURCES += main.cpp mainwindow.cpp \
     linfilterdialog.cpp \
     linseekdialog.cpp \
     linhtmldisplayform.cpp \
-    lincategorydialog.cpp \
-    lincategorywidgetitem.cpp \
     linflickabletabbar.cpp \
-    linmaemo5theme.cpp
+    linmaemo5theme.cpp \
+    lindbus.cpp \
+    linpreferencesform.cpp \
+    lincollectiondialog.cpp \
+    lincollectionwidgetitem.cpp
 HEADERS += mainwindow.h \
     linnowplayingform.h \
     linnewsfeedwidgetitem.h \
@@ -51,11 +53,13 @@ HEADERS += mainwindow.h \
     linseekdialog.h \
     linhtmldisplayform.h \
     qwebviewselectionsuppressor.h \
-    lincategorydialog.h \
-    lincategorywidgetitem.h \
     linflickabletabbar.h \
     linfilteritems.h \
-    linmaemo5theme.h
+    linmaemo5theme.h \
+    lindbus.h \
+    linpreferencesform.h \
+    lincollectiondialog.h \
+    lincollectionwidgetitem.h
 FORMS += mainwindow.ui \
     linnowplayingform.ui \
     linvideodisplayform.ui \
@@ -65,7 +69,8 @@ FORMS += mainwindow.ui \
     linfilterdialog.ui \
     linseekdialog.ui \
     linhtmldisplayform.ui \
-    lincategorydialog.ui
+    linpreferencesform.ui \
+    lincollectiondialog.ui
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)

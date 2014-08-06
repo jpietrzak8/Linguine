@@ -53,6 +53,12 @@ public:
   int displayData(
     GstElement *pipeline);
 
+  void setPubDate(
+    QString pubDate);
+
+  void setSummary(
+    QString summary);
+
   void setTitle(
     QString title);
 

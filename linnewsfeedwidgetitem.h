@@ -26,6 +26,7 @@
 #include <QListWidgetItem>
 #include <QPixmap>
 #include <QString>
+#include <QSet>
 #include "linfilteritems.h"
 
 class QSettings;
@@ -40,26 +41,24 @@ public:
     QString name,
     QString sourceUrl,
     FrequencyType freq,
-    ContentType category,
     MediaType media,
     LanguageType language,
+    const QSet<QString> &tags,
     QString activeTextColor,
     QNetworkAccessManager *qnam);
-
-  LinNewsfeedWidgetItem(
-    QString name,
-    QString sourceUrl,
-    FrequencyType freq,
-    ContentType category,
-    MediaType media,
-    LanguageType language,
-    QString activeTextColor,
-    QNetworkAccessManager *qnam,
-    QSettings &settings);
 
   ~LinNewsfeedWidgetItem();
 
   void parseRSS();
+
+  void setItemSummary(
+    QString itemSummary);
+
+  void setItemPubDate(
+    QString itemPubDate);
+
+  void setFaviconUrl(
+    QString faviconUrl);
 
   void setImage(
     const QByteArray &ba);
@@ -70,9 +69,12 @@ public:
   void setMediaUrl(
     QString mediaUrl);
 
-  QPixmap getImage();
-  QString getItemTitle();
-  QString getMediaUrl();
+  QString getItemSummary() const { return itemSummary; }
+  QString getItemPubDate() const { return itemPubDate; }
+  QString getFaviconUrl() const { return faviconUrl; }
+  QPixmap getImage() const { return image; }
+  QString getItemTitle() const { return itemTitle; }
+  QString getMediaUrl() const { return mediaUrl; }
 
   void setFrequency(
     FrequencyType f)
@@ -82,29 +84,52 @@ public:
     MediaType m)
     {media = m;}
 
-  void setContent(
-    ContentType c)
-    {category = c;}
-
   void setLanguage(
     LanguageType l)
     {language = l;}
 
-  FrequencyType getFrequency() {return frequency;}
-  MediaType getMedia() {return media;}
-  ContentType getContent() {return category;}
-  LanguageType getLanguage() {return language;}
-  QString getSourceUrl() {return sourceUrl;}
+  void insertTag(
+    QString tag)
+    {tags.insert(tag);}
+
+  FrequencyType getFrequency() const {return frequency;}
+  MediaType getMedia() const {return media;}
+  LanguageType getLanguage() const {return language;}
+  QString getSourceUrl() const {return sourceUrl;}
+  QString getName() const { return name; }
+
+/*
+  QSet<QString>::const_iterator tagsBegin()
+    {return tags.constBegin();}
+
+  QSet<QString>::const_iterator tagsEnd()
+    {return tags.constEnd();}
+*/
+
+  bool hasTag(
+    QString tag)
+    { return tags.contains(tag); }
+
+  void resetTitle();
+
+  // For sorting purposes:
+//  virtual bool operator<(const QListWidgetItem &other) const;
+
+  void addToSettings(
+    QSettings &settings);
 
 private:
   bool alreadyParsed;
   QString name;
   QString sourceUrl;
   FrequencyType frequency;
-  ContentType category;
   MediaType media;
   LanguageType language;
+  QSet<QString> tags;
 
+  QString itemSummary;
+  QString itemPubDate;
+  QString faviconUrl;
   QPixmap image;
   QString itemTitle;
   QString mediaUrl;

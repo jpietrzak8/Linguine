@@ -49,7 +49,6 @@ private:
 
   FrequencyType frequency;
   MediaType media;
-  ContentType content;
   LanguageType language;
 };
 

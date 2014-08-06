@@ -1,5 +1,5 @@
 //
-// linmaemy5theme.h
+// linpreferencesform.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,30 +20,36 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINMAEMO5THEME_H
-#define LINMAEMO5THEME_H
+#ifndef LINPREFERENCESFORM_H
+#define LINPREFERENCESFORM_H
 
-#include <QString>
+#include <QWidget>
 
-class LinMaemo5Theme
+namespace Ui {
+class LinPreferencesForm;
+}
+
+class LinPreferencesForm : public QWidget
 {
+  Q_OBJECT
+  
 public:
-  LinMaemo5Theme();
+  explicit LinPreferencesForm(QWidget *parent = 0);
+  ~LinPreferencesForm();
 
-  QString getBackgroundColor() { return backgroundColor; }
-  QString getDefaultTextColor() { return defaultTextColor; }
-  QString getActiveTextColor() { return activeTextColor; }
-  QString getSecondaryTextColor() { return secondaryTextColor; }
-  QString getAccentColor() { return accentColor; }
-  QString getSystemFontFamily() { return systemFontFamily; }
+  bool openExternalPlayer() { return openExternalPlayerFlag; }
+
+  bool openExternalBrowser() { return openExternalBrowserFlag; }
+  
+private slots:
+  void on_playerCheckBox_toggled(bool checked);
+  void on_browserCheckBox_toggled(bool checked);
 
 private:
-  QString backgroundColor;
-  QString defaultTextColor;
-  QString activeTextColor;
-  QString secondaryTextColor;
-  QString accentColor;
-  QString systemFontFamily;
+  Ui::LinPreferencesForm *ui;
+
+  bool openExternalPlayerFlag;
+  bool openExternalBrowserFlag;
 };
 
-#endif // LINMAEMO5THEME_H
+#endif // LINPREFERENCESFORM_H

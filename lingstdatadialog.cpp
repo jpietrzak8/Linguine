@@ -139,6 +139,20 @@ int LinGstDataDialog::displayData(
 }
 
 
+void LinGstDataDialog::setPubDate(
+  QString pubDate)
+{
+  ui->pubDateLabel->setText(pubDate);
+}
+
+
+void LinGstDataDialog::setSummary(
+  QString summary)
+{
+  ui->summaryLabel->setText(summary);
+}
+
+
 void LinGstDataDialog::setTitle(
   QString title)
 {

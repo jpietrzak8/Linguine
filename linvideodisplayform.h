@@ -76,7 +76,9 @@ public:
 
 public slots:
   void setProgram(
-    QString title,
+    QString feedName,
+    QString summary,
+    QString pubDate,
     QString mediaUrl);
 
   void pausePlaying();

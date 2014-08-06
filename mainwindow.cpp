@@ -29,10 +29,13 @@
 #include "linnowplayingform.h"
 #include "linvideodisplayform.h"
 #include "linhtmldisplayform.h"
+#include "linpreferencesform.h"
 #include "lindocumentationform.h"
 #include "linaboutform.h"
 #include "linnewsfeedwidgetitem.h"
+#include "lincollectionwidgetitem.h"
 #include "linfilterdialog.h"
+#include "lindbus.h"
 #include <QXmlStreamReader>
 #include <QFile>
 #include <QString>
@@ -51,9 +54,10 @@ MainWindow::MainWindow(
     nowPlayingForm(0),
     videoDisplayForm(0),
     htmlDisplayForm(0),
+    preferencesForm(0),
     documentationForm(0),
-    aboutForm(0)
-//    filterDialog(0)
+    aboutForm(0),
+    dbus(0)
 {
   ui->setupUi(this);
 
@@ -71,25 +75,12 @@ MainWindow::MainWindow(
   nowPlayingForm = new LinNowPlayingForm(this);
   videoDisplayForm = new LinVideoDisplayForm(this);
   htmlDisplayForm = new LinHtmlDisplayForm(this, &qnam);
+  preferencesForm = new LinPreferencesForm(this);
   documentationForm = new LinDocumentationForm(this);
   aboutForm = new LinAboutForm(this);
-//  filterDialog = new LinFilterDialog(this);
+  dbus = new LinDBus();
 
   QSettings settings("pietrzak.org", "Linguine");
-
-/*
-  if (settings.contains("currentFrequencyIndex"))
-  {
-    ui->frequencyComboBox->setCurrentIndex(
-      settings.value("currentFrequencyIndex").toInt());
-  }
-
-  if (settings.contains("currentCategoryIndex"))
-  {
-    ui->categoryComboBox->setCurrentIndex(
-      settings.value("currentCategoryIndex").toInt());
-  }
-*/
 
   retrieveNewsfeeds(settings);
 }
@@ -97,25 +88,15 @@ MainWindow::MainWindow(
 
 MainWindow::~MainWindow()
 {
-  QSettings settings("pietrzak.org", "Linguine");
-
-/*
-  settings.setValue(
-    "currentFrequencyIndex",
-    ui->frequencyComboBox->currentIndex());
-
-  settings.setValue(
-    "currentCategoryIndex",
-    ui->categoryComboBox->currentIndex());
-*/
-
   if (nowPlayingForm) delete nowPlayingForm;
   if (videoDisplayForm) delete videoDisplayForm;
   if (htmlDisplayForm) delete htmlDisplayForm;
+  if (preferencesForm) delete preferencesForm;
   if (documentationForm) delete documentationForm;
   if (aboutForm) delete aboutForm;
-//  if (filterDialog) delete filterDialog;
   if (flickableTabBar) delete flickableTabBar;
+  if (dbus) delete dbus;
+
   delete ui;
 }
 
@@ -179,12 +160,12 @@ void MainWindow::showExpanded()
 void MainWindow::retrieveNewsfeeds(
   QSettings &settings)
 {
-//  QSettings settings("pietrzak.org", "Linguine");
-
-  int size = settings.beginReadArray("newsfeeds");
+  // Read the categories out of the settings:
+  int size = settings.beginReadArray("collections");
 
   if (size == 0)
   {
+    // Try to read the categories out of the newsfeeds file:
     QFile xmlFile(":/newsfeeds.xml");
 
     if (!xmlFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -193,7 +174,7 @@ void MainWindow::retrieveNewsfeeds(
 
       QMaemo5InformationBox::information(this, err);
 
-      qDebug() << err;
+      qWarning() << err;
 
       return;
     }
@@ -205,14 +186,56 @@ void MainWindow::retrieveNewsfeeds(
     return;
   }
 
-  // Otherwise, read the newsfeeds out of the settings:
+  // Otherwise, continue onward:
   int index = 0;
+  int tagsSize = 0;
+  int tagsIndex = 0;
   QString name;
   QString url;
   FrequencyType freq;
-  ContentType category;
   MediaType media;
   LanguageType language;
+  QSet<QString> tags;
+
+  while (index < size)
+  {
+    settings.setArrayIndex(index);
+
+    name = settings.value("name").toString();
+    freq = (FrequencyType) settings.value("frequency").toInt();
+    media = (MediaType) settings.value("media").toInt();
+    language = (LanguageType) settings.value("language").toInt();
+
+    tagsSize = settings.beginReadArray("requiredTags");
+    if (tagsSize)
+    {
+      tagsIndex = 0;
+      while (tagsIndex < tagsSize)
+      {
+        tags.insert(settings.value("requiredTag").toString());
+        ++tagsIndex;
+      }
+    }
+    settings.endArray();
+
+    LinCollectionWidgetItem *cwi =
+      new LinCollectionWidgetItem(name, freq, media, language, tags);
+
+    tags.clear();
+
+    flickableTabBar->addItem(cwi);
+
+    ++index;
+  }
+
+  settings.endArray();
+
+  flickableTabBar->setCurrentRow(0);
+
+  size = settings.beginReadArray("newsfeeds");
+
+  // Read the newsfeeds out of the settings:
+  index = 0;
   while (index < size)
   {
     settings.setArrayIndex(index);
@@ -220,29 +243,43 @@ void MainWindow::retrieveNewsfeeds(
     name = settings.value("name").toString();
     url = settings.value("url").toString();
     freq = (FrequencyType) settings.value("frequency").toInt();
-    category = (ContentType) settings.value("category").toInt();
     media = (MediaType) settings.value("media").toInt();
     language = (LanguageType) settings.value("language").toInt();
+
+    tagsSize = settings.beginReadArray("tags");
+    if (tagsSize)
+    {
+      tagsIndex = 0;
+      while (tagsIndex < tagsSize)
+      {
+        tags.insert(settings.value("tag").toString());
+        ++tagsIndex;
+      }
+    }
+    settings.endArray();
 
     LinNewsfeedWidgetItem *nwi =
       new LinNewsfeedWidgetItem(
         name,
         url,
         freq,
-        category,
         media,
         language,
+        tags,
         getActiveTextColor(),
         &qnam);
 
+    tags.clear();
+
     ui->mediaListWidget->addItem(nwi);
 
+    // Safe to do this here, because all collections already defined:
     filterItem(nwi);
-
-//    nwi->parseRSS();
 
     ++index;
   }
+
+  settings.endArray();
 }
 
 
@@ -270,7 +307,7 @@ void MainWindow::parseXML(
 
     QMaemo5InformationBox::information(this, err);
 
-    qDebug() << err;
+    qWarning() << err;
   }
 }
 
@@ -278,19 +315,10 @@ void MainWindow::parseXML(
 void MainWindow::parseLinguineElement(
   QXmlStreamReader &reader)
 {
-  // We'll update the settings as we go.
-  QSettings settings("pietrzak.org", "Linguine");
-
-  // First, remove all existing newsfeeds from settings:
-  settings.remove("newsfeeds");
-
-  // Also, remove all newsfeeds from the current list:
+  // Remove all collections from the tab bar:
+  flickableTabBar->clear();
+  // Remove all newsfeeds from the current list:
   ui->mediaListWidget->clear();
-
-  // Now, start a fresh array of newsfeeds:
-  settings.beginWriteArray("newsfeeds");
-
-  int index = 0;
 
   QString name;
   QString url;
@@ -298,9 +326,9 @@ void MainWindow::parseLinguineElement(
   QString catString;
   QString mediaString;
   FrequencyType freq = Any_Rate;
-  ContentType category = Any_Content;
   MediaType media = Any_Media;
   LanguageType language = Any_Language;
+  QSet<QString> tags;
 
   while (!reader.atEnd())
   {
@@ -318,105 +346,151 @@ void MainWindow::parseLinguineElement(
 
         if (reader.attributes().hasAttribute("frequency"))
         {
-          // For now, default to "Other" rate:
-//          freq = Other_Rate;
-
-          refreshString = reader.attributes().value("frequency").toString();
-
-          if (refreshString == "hourly")
-          {
-            freq = Hourly_Rate;
-          }
-          else if (refreshString == "daily")
-          {
-            freq = Daily_Rate;
-          }
-          else if (refreshString == "weekly")
-          {
-            freq = Weekly_Rate;
-          }
-          else if (refreshString == "other")
-          {
-            freq = Other_Rate;
-          }
-        }
-
-        if (reader.attributes().hasAttribute("category"))
-        {
-          catString = reader.attributes().value("category").toString();
-
-          if (catString == "news")
-          {
-            category = News_Content;
-          }
-          else if (catString == "politics")
-          {
-            category = Politics_Content;
-          }
+          freq = parseFrequency(
+            reader.attributes().value("frequency").toString());
         }
 
         if (reader.attributes().hasAttribute("media"))
         {
-          // For now, default to audio media:
-//          media = Audio_Media;
-
-          mediaString = reader.attributes().value("media").toString();
-
-          if (mediaString == "audio")
-          {
-            media = Audio_Media;
-          }
-          else if (mediaString == "video")
-          {
-            media = Video_Media;
-          }
-          else if (mediaString == "text")
-          {
-            media = Text_Media;
-          }
+          media = parseMedia(
+            reader.attributes().value("media").toString());
         }
 
-        name = parseNameElement(reader);
+        parseNewsfeedElement(name, tags, reader);
 
-        settings.setArrayIndex(index++);
         LinNewsfeedWidgetItem *nwi =
           new LinNewsfeedWidgetItem(
             name,
             url,
             freq,
-            category,
             media,
             language,
+            tags,
             getActiveTextColor(),
-            &qnam,
-            settings);
+            &qnam);
 
         ui->mediaListWidget->addItem(nwi);
 
-        filterItem(nwi);
-
-//        nwi->parseRSS();
+        nwi->setHidden(true);
 
         // Reset all the fields:
         name.clear();
         url.clear();
         freq = Any_Rate;
-        category = Any_Content;
         media = Any_Media;
         language = Any_Language;
+        tags.clear();
+      }
+      else if (reader.name() == "collection")
+      {
+        if (reader.attributes().hasAttribute("frequency"))
+        {
+          freq = parseFrequency(
+            reader.attributes().value("frequency").toString());
+        }
+
+        if (reader.attributes().hasAttribute("media"))
+        {
+          media = parseMedia(
+            reader.attributes().value("media").toString());
+        }
+
+        parseCollectionElement(name, tags, reader);
+
+        LinCollectionWidgetItem *cwi =
+          new LinCollectionWidgetItem(
+            name,
+            freq,
+            media,
+            language,
+            tags);
+
+        flickableTabBar->addItem(cwi);
+
+        // Reset all the fields:
+        name.clear();
+        freq = Any_Rate;
+        media = Any_Media;
+        language = Any_Language;
+        tags.clear();
       }
     }
   }
 
+  // Start the flickable tab bar at the beginning:
+//  flickableTabBar->setIndex(0);
+
+  // Update the settings:
+  QSettings settings("pietrzak.org", "Linguine");
+
+  // First, remove all existing categories and newsfeeds from settings:
+  settings.remove("categories");
+  settings.remove("newsfeeds");
+
+  // Start a fresh array of categories:
+  settings.beginWriteArray("categories");
+
+  int index = 0;
+  int count = flickableTabBar->count();
+  while (index < count)
+  {
+    LinCollectionWidgetItem *cwi =
+      dynamic_cast<LinCollectionWidgetItem *>(flickableTabBar->item(index));
+
+    settings.setArrayIndex(index);
+    cwi->addToSettings(settings);
+
+    ++index;
+  }
+
   settings.endArray();
+
+  // Start a fresh array of newsfeeds:
+  settings.beginWriteArray("newsfeeds");
+
+  index = 0;
+  count = ui->mediaListWidget->count();
+  while (index < count)
+  {
+    LinNewsfeedWidgetItem *nwi =
+      dynamic_cast<LinNewsfeedWidgetItem *>(ui->mediaListWidget->item(index));
+
+    settings.setArrayIndex(index);
+    nwi->addToSettings(settings);
+
+    ++index;
+  }
+
+  settings.endArray();
+
+  // If at this point we have no collections, create one:
+  if (flickableTabBar->count() == 0)
+  {
+    tags.clear(); // This should be unnecessary
+
+    LinCollectionWidgetItem *everything =
+      new LinCollectionWidgetItem(
+        "Everything",
+        Any_Rate,
+        Any_Media,
+        Any_Language,
+        tags);
+
+    flickableTabBar->addItem(everything);
+  }
+
+  flickableTabBar->setCurrentRow(0);
+
+  refilter(
+    flickableTabBar->currentItem());
 }
 
 
-QString MainWindow::parseNameElement(
+void MainWindow::parseNewsfeedElement(
+  QString &name,
+  QSet<QString> &tags,
   QXmlStreamReader &reader)
 {
-  QString textString;
-
   while (!reader.atEnd())
   {
     reader.readNext();
@@ -425,7 +499,11 @@ QString MainWindow::parseNameElement(
     {
       if (reader.name() == "name")
       {
-        textString = parseText(reader, "name");
+        name = parseText(reader, "name");
+      }
+      else if (reader.name() == "tag")
+      {
+        tags.insert(parseText(reader, "tag"));
       }
     }
     else if (reader.isEndElement())
@@ -436,8 +514,37 @@ QString MainWindow::parseNameElement(
       }
     }
   }
+}
 
-  return textString;
+
+void MainWindow::parseCollectionElement(
+  QString &name,
+  QSet<QString> &tags,
+  QXmlStreamReader &reader)
+{
+  while (!reader.atEnd())
+  {
+    reader.readNext();
+
+    if (reader.isStartElement())
+    {
+      if (reader.name() == "name")
+      {
+        name = parseText(reader, "name");
+      }
+      else if (reader.name() == "requiredTag")
+      {
+        tags.insert(parseText(reader, "requiredTag"));
+      }
+    }
+    else if (reader.isEndElement())
+    {
+      if (reader.name() == "collection")
+      {
+        break;
+      }
+    }
+  }
 }
 
 
@@ -471,31 +578,7 @@ QString MainWindow::parseText(
 void MainWindow::filterItem(
   LinNewsfeedWidgetItem *nwi)
 {
-/*
-  if (ui->frequencyComboBox->currentIndex() > 0)
-  {
-    // This is a hack:
-    if ( nwi->getFrequency() !=
-       (FrequencyType) ui->frequencyComboBox->currentIndex() )
-    {
-      nwi->setHidden(true);
-      return;
-    }
-  }
-
-  if (ui->categoryComboBox->currentIndex() > 0)
-  {
-    // More hack:
-    if ( nwi->getContentType() !=
-         (ContentType) ui->categoryComboBox->currentIndex() )
-    {
-      nwi->setHidden(true);
-      return;
-    }
-  }
-*/
-
-  if (flickableTabBar->matchesCurrentCategory(nwi))
+  if (flickableTabBar->matchesCurrentCollection(nwi))
   {
     nwi->setHidden(false);
     nwi->parseRSS();
@@ -519,40 +602,71 @@ void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
 
   if (media == Audio_Media)
   {
-    // Make sure the other form isn't playing:
-    videoDisplayForm->stopPlaying();
+    if (preferencesForm->openExternalPlayer())
+    {
+      dbus->launchMedia(nwi->getMediaUrl());
+    }
+    else
+    {
+      // Make sure the other form isn't playing:
+      videoDisplayForm->stopPlaying();
 
-    nowPlayingForm->setProgram(
-      nwi->getImage(),
-      nwi->getItemTitle(),
-      nwi->getMediaUrl());
+      nowPlayingForm->setProgram(
+        nwi->getName(),
+        nwi->getImage(),
+        nwi->getItemTitle(),
+        nwi->getItemSummary(),
+        nwi->getItemPubDate(),
+        nwi->getMediaUrl());
 
-    nowPlayingForm->show();
+      nowPlayingForm->show();
+    }
   }
   else if (media == Video_Media)
   {
-    // Make sure the other form isn't playing:
-    nowPlayingForm->stopPlaying();
+    if (preferencesForm->openExternalPlayer())
+    {
+      dbus->launchMedia(nwi->getMediaUrl());
+    }
+    else
+    {
+      // Make sure the other form isn't playing:
+      nowPlayingForm->stopPlaying();
 
-    videoDisplayForm->setProgram(
-      nwi->getItemTitle(),
-      nwi->getMediaUrl());
+      videoDisplayForm->setProgram(
+        nwi->getName(),
+        nwi->getItemSummary(),
+        nwi->getItemPubDate(),
+        nwi->getMediaUrl());
 
-    // Set auto orientation to false:
-    setAttribute(static_cast<Qt::WidgetAttribute>(130), false);
+      // Set auto orientation to false:
+      setAttribute(static_cast<Qt::WidgetAttribute>(130), false);
 
-    // Set landscape orientation to true:
-    setAttribute(static_cast<Qt::WidgetAttribute>(129), true);
+      // Set landscape orientation to true:
+      setAttribute(static_cast<Qt::WidgetAttribute>(129), true);
 
-    videoDisplayForm->show();
+      videoDisplayForm->show();
+    }
   }
   else if (media == Text_Media)
   {
     htmlDisplayForm->displayText(
-      nwi->getSourceUrl());
+      nwi->getName(),
+      nwi->getSourceUrl(),
+      nwi->getFaviconUrl(),
+      preferencesForm->openExternalBrowser());
 
     htmlDisplayForm->show();
   }
+/*
+  else if (media == Image_Media)
+  {
+    imageDisplayForm->displayImage(
+      nwi->getSomethingUrl());
+
+    imageDisplayForm->show();
+  }
+*/
 }
 
 
@@ -583,7 +697,7 @@ void MainWindow::on_actionLoad_Newsfeeds_File_triggered()
 
     QMaemo5InformationBox::information(this, err);
 
-    qDebug() << err;
+    qWarning() << err;
 
     return;
   }
@@ -604,7 +718,7 @@ void MainWindow::on_actionReset_Newsfeeds_triggered()
 
     QMaemo5InformationBox::information(this, err);
 
-    qDebug() << err;
+    qWarning() << err;
 
     return;
   }
@@ -612,6 +726,12 @@ void MainWindow::on_actionReset_Newsfeeds_triggered()
   QXmlStreamReader reader(&xmlFile);
 
   parseXML(reader);
+}
+
+
+void MainWindow::on_actionPreferences_triggered()
+{
+  preferencesForm->show();
 }
 
 
@@ -659,22 +779,70 @@ void MainWindow::refilter(
 
 
 /*
-void MainWindow::on_frequencyComboBox_currentIndexChanged(int index)
-{
-  refilter();
-}
-
-
-void MainWindow::on_categoryComboBox_currentIndexChanged(int index)
-{
-  refilter();
-}
-*/
-
-
-/*
 void MainWindow::on_filterButton_clicked()
 {
   filterDialog->exec();
 }
 */
+
+
+FrequencyType MainWindow::parseFrequency(
+  QString freqStr)
+{
+  if (freqStr == "hourly")
+  {
+    return Hourly_Rate;
+  }
+  else if (freqStr == "daily")
+  {
+    return Daily_Rate;
+  }
+  else if (freqStr == "weekly")
+  {
+    return Weekly_Rate;
+  }
+  else if (freqStr == "other")
+  {
+    return Other_Rate;
+  }
+  else if (freqStr == "any")
+  {
+    return Any_Rate;
+  }
+
+  qWarning() << "Could not parse frequency: " << freqStr;
+
+  // Bit of a hack:
+  return Other_Rate;
+}
+
+
+MediaType MainWindow::parseMedia(
+  QString mediaStr)
+{
+  if (mediaStr == "audio")
+  {
+    return Audio_Media;
+  }
+  else if (mediaStr == "video")
+  {
+    return Video_Media;
+  }
+  else if (mediaStr == "text")
+  {
+    return Text_Media;
+  }
+//  else if (mediaStr == "image")
+//  {
+//    return Image_Media;
+//  }
+  else if (mediaStr == "any")
+  {
+    return Any_Media;
+  }
+
+  qWarning() << "Could not parse media: " << mediaStr;
+
+  // This is definitely a hack:
+  return Text_Media;
+}

@@ -32,57 +32,24 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   QString n,
   QString s,
   FrequencyType f,
-  ContentType c,
   MediaType m,
   LanguageType l,
+  const QSet<QString> &t,
   QString a,
   QNetworkAccessManager *q)
   : alreadyParsed(false),
     name(n),
     sourceUrl(s),
     frequency(f),
-    category(c),
     media(m),
     language(l),
+    tags(t),
     activeTextColor(a),
     qnam(q),
     parser(0)
 {
 //  parser = new LinRSSParser(this, sourceUrl, qnam);
   setText(name);
-}
-
-
-LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
-  QString n,
-  QString s,
-  FrequencyType f,
-  ContentType c,
-  MediaType m,
-  LanguageType l,
-  QString a,
-  QNetworkAccessManager *q,
-  QSettings &settings)
-  : alreadyParsed(false),
-    name(n),
-    sourceUrl(s),
-    frequency(f),
-    category(c),
-    media(m),
-    language(l),
-    activeTextColor(a),
-    qnam(q),
-    parser(0)
-{
-//  parser = new LinRSSParser(this, sourceUrl, qnam);
-  setText(name);
-
-  settings.setValue("name", name);
-  settings.setValue("url", sourceUrl);
-  settings.setValue("frequency", frequency);
-  settings.setValue("category", category);
-  settings.setValue("media", media);
-  settings.setValue("language", language);
 }
 
 
@@ -103,6 +70,27 @@ void LinNewsfeedWidgetItem::parseRSS()
 }
 
 
+void LinNewsfeedWidgetItem::setItemSummary(
+  QString is)
+{
+  itemSummary = is;
+}
+
+
+void LinNewsfeedWidgetItem::setItemPubDate(
+  QString ipd)
+{
+  itemPubDate = ipd;
+}
+
+
+void LinNewsfeedWidgetItem::setFaviconUrl(
+  QString fUrl)
+{
+  faviconUrl = fUrl;
+}
+
+
 void LinNewsfeedWidgetItem::setImage(
   const QByteArray &ba)
 {
@@ -116,12 +104,6 @@ void LinNewsfeedWidgetItem::setItemTitle(
   QString s)
 {
   itemTitle = s;
-
-//  QString tempString = name;
-//  tempString += "\n\t";
-//  tempString += itemTitle;
-
-  setText(itemTitle);
 }
 
 
@@ -132,19 +114,69 @@ void LinNewsfeedWidgetItem::setMediaUrl(
 }
 
 
-QPixmap LinNewsfeedWidgetItem::getImage()
+void LinNewsfeedWidgetItem::resetTitle()
 {
-  return image;
+  // Update the item's on-screen info:
+  if (!itemTitle.isEmpty())
+  {
+/*
+    if (!itemPubDate.isEmpty())
+    {
+      QString tempString = itemTitle;
+      tempString += "\n";
+      tempString += itemPubDate;
+      setText(tempString);
+    }
+    else
+    {
+      setText(itemTitle);
+    }
+*/
+    setText(itemTitle);
+  }
 }
 
 
-QString LinNewsfeedWidgetItem::getItemTitle()
+/*
+bool LinNewsfeedWidgetItem::operator<(
+  const QListWidgetItem &other) const
 {
-  return itemTitle;
+  const LinNewsfeedWidgetItem *otherNWI =
+    dynamic_cast<const LinNewsfeedWidgetItem *>(&other);
+
+  if (!otherNWI)
+  {
+    // fall back to the parent's implementation:
+    return QListWidgetItem::operator<(other);
+  }
+
+  return (itemPubDate < otherNWI->getItemPubDate());
 }
+*/
 
 
-QString LinNewsfeedWidgetItem::getMediaUrl()
+void LinNewsfeedWidgetItem::addToSettings(
+  QSettings &settings)
 {
-  return mediaUrl;
+  settings.setValue("name", name);
+  settings.setValue("url", sourceUrl);
+  settings.setValue("frequency", frequency);
+  settings.setValue("media", media);
+  settings.setValue("language", language);
+
+  settings.beginWriteArray("tags");
+
+  QSet<QString>::const_iterator index = tags.constBegin();
+  QSet<QString>::const_iterator end = tags.constEnd();
+  int settingsIndex = 0;
+
+  while (index != end)
+  {
+    settings.setArrayIndex(settingsIndex);
+    settings.setValue("tag", *index);
+    ++settingsIndex;
+    ++index;
+  }
+
+  settings.endArray();
 }

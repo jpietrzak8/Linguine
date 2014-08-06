@@ -40,11 +40,7 @@ LinFilterDialog::LinFilterDialog(
   ui->mediaComboBox->addItem("Audio", QVariant(Audio_Media));
   ui->mediaComboBox->addItem("Video", QVariant(Video_Media));
 
-  ui->contentComboBox->addItem("Any", QVariant(Any_Content));
-  ui->contentComboBox->addItem("News", QVariant(News_Content));
-  ui->contentComboBox->addItem("Politics", QVariant(Politics_Content));
-
-  ui->langComboBox->addItem("Any", QVariant(Any_Content));
+  ui->langComboBox->addItem("Any", QVariant(Any_Language));
   ui->langComboBox->addItem("English", QVariant(English_Language));
   ui->langComboBox->addItem("Japanese", QVariant(Japanese_Language));
   ui->langComboBox->addItem("French", QVariant(French_Language));
@@ -68,9 +64,6 @@ void LinFilterDialog::on_buttonBox_accepted()
 
   media = (MediaType) ui->mediaComboBox->itemData(
     ui->mediaComboBox->currentIndex()).toInt();
-
-  content = (ContentType) ui->contentComboBox->itemData(
-    ui->contentComboBox->currentIndex()).toInt();
 
   language = (LanguageType) ui->langComboBox->itemData(
     ui->langComboBox->currentIndex()).toInt();

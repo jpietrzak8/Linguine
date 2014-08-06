@@ -1,7 +1,7 @@
 //
-// linmaemy5theme.h
+// lindbus.cpp
 //
-// Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
+// Copyright 2013 by John Pietrzak  (jpietrzak8@gmail.com)
 //
 // This file is part of Linguine.
 //
@@ -20,30 +20,34 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINMAEMO5THEME_H
-#define LINMAEMO5THEME_H
+#include "lindbus.h"
 
-#include <QString>
+#include <QDBusInterface>
 
-class LinMaemo5Theme
+#include <QDebug>
+
+LinDBus::LinDBus()
+  : mediaplayer(0)
 {
-public:
-  LinMaemo5Theme();
+}
 
-  QString getBackgroundColor() { return backgroundColor; }
-  QString getDefaultTextColor() { return defaultTextColor; }
-  QString getActiveTextColor() { return activeTextColor; }
-  QString getSecondaryTextColor() { return secondaryTextColor; }
-  QString getAccentColor() { return accentColor; }
-  QString getSystemFontFamily() { return systemFontFamily; }
 
-private:
-  QString backgroundColor;
-  QString defaultTextColor;
-  QString activeTextColor;
-  QString secondaryTextColor;
-  QString accentColor;
-  QString systemFontFamily;
-};
+LinDBus::~LinDBus()
+{
+  if (mediaplayer) delete mediaplayer;
+}
 
-#endif // LINMAEMO5THEME_H
+
+void LinDBus::launchMedia(
+  QString mediaUrl)
+{
+  if (!mediaplayer)
+  {
+    mediaplayer = new QDBusInterface(
+      "com.nokia.mediaplayer",
+      "/com/nokia/mediaplayer",
+      "com.nokia.mediaplayer");
+  }
+
+  mediaplayer->call("mime_open", mediaUrl);
+}

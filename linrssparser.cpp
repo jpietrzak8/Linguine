@@ -92,7 +92,11 @@ void LinRSSParser::parseRSSFeed()
   // No longer need the current reply:
   reply->deleteLater();
 
+  // reset the item description:
+  nwi->resetTitle();
+
   // Retrieve the image:
+  nwi->setFaviconUrl(imageUrl);
   reply = qnam->get(QNetworkRequest(QUrl(imageUrl)));
 
   connect(
@@ -207,7 +211,8 @@ void LinRSSParser::parseRSSItem(
       }
       else if (newsReader.name() == "pubDate")
       {
-        itemPubDate = parseRSSText("pubDate", newsReader);
+//        itemPubDate = parseRSSText("pubDate", newsReader);
+        nwi->setItemPubDate(parseRSSText("pubDate", newsReader));
       }
       else if (!imageAlreadySeen && newsReader.name() == "image")
       {
@@ -233,6 +238,12 @@ void LinRSSParser::parseRSSItem(
           nwi->setMediaUrl(
             newsReader.attributes().value("url").toString());
         }
+      }
+      else if ( (newsReader.name() == "summary")
+        && (newsReader.namespaceUri() == ITUNES_NS))
+      {
+//        itemSummary = parseRSSText("summary", newsReader);
+        nwi->setItemSummary(parseRSSText("summary", newsReader));
       }
     }
     else if (newsReader.isEndElement())

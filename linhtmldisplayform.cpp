@@ -80,9 +80,15 @@ LinHtmlDisplayForm::~LinHtmlDisplayForm()
 
 
 void LinHtmlDisplayForm::displayText(
-  QString textUrl)
+  QString feedName,
+  QString sUrl,
+  QString fUrl,
+  bool openExternalBrowser)
 {
-  sourceUrl = textUrl;
+  setWindowTitle(feedName);
+
+  sourceUrl = sUrl;
+  faviconUrl = fUrl;
   reply = qnam->get(QNetworkRequest(QUrl(sourceUrl)));
 
   connect(
@@ -90,6 +96,8 @@ void LinHtmlDisplayForm::displayText(
     SIGNAL(finished()),
     this,
     SLOT(parseRSSFeed()));
+
+  useExternalBrowser = openExternalBrowser;
 }
 
 
@@ -165,7 +173,9 @@ void LinHtmlDisplayForm::parseRSSChannel(
   htmlOutput += "<html>\n <head>\n  <title>Linguine Output</title>\n";
   // Place some CSS in the head of the html:
   htmlOutput += "  <style type=\"text/css\">\n";
-  htmlOutput += "   img {max-width: 100%; height: auto;}\n";
+  htmlOutput += "   hr {color: " + mainWindow->getAccentColor() + ";}\n";
+  htmlOutput += "   img.main {max-width: 100%; height: auto;}\n";
+  htmlOutput += "   img.footer {height: 20px; width: auto;}\n";
 //  htmlOutput += "   body {-webkit-user-select: none;}\n";
   htmlOutput += "   body {\n";
   htmlOutput += "    color: " + mainWindow->getDefaultTextColor() + ";\n";
@@ -216,7 +226,11 @@ void LinHtmlDisplayForm::parseRSSItem(
   QString title;
   QString link;
   QString imageUrl;
+  QString enclosureUrl;
+  QString enclosureType;
+  QString mediaContentType;
   QString description;
+  QString pubDate;
   bool mediaContentAlreadySeen = false;
 
   while (!textReader.atEnd())
@@ -235,9 +249,22 @@ void LinHtmlDisplayForm::parseRSSItem(
       }
       else if (textReader.name() == "enclosure")
       {
+        if (textReader.attributes().hasAttribute("type"))
+        {
+          enclosureType = textReader.attributes().value("type").toString();
+        }
+
         if (textReader.attributes().hasAttribute("url"))
         {
-          imageUrl = textReader.attributes().value("url").toString();
+          if (enclosureType == "image/jpeg")
+          {
+            // Use the enclosure as our image:
+            imageUrl = textReader.attributes().value("url").toString();
+          }
+          else
+          {
+            enclosureUrl = textReader.attributes().value("url").toString();
+          }
         }
       }
       else if (textReader.name() == "thumbnail")
@@ -260,6 +287,11 @@ void LinHtmlDisplayForm::parseRSSItem(
       }
       else if (textReader.name() == "content")
       {
+        if (textReader.attributes().hasAttribute("medium"))
+        {
+          mediaContentType = textReader.attributes().value("medium").toString();
+        }
+
         // If there are multiple content items, choose the first one:
         if ( !mediaContentAlreadySeen
           && QString::compare(
@@ -268,7 +300,14 @@ void LinHtmlDisplayForm::parseRSSItem(
             Qt::CaseInsensitive) == 0
           && textReader.attributes().hasAttribute("url"))
         {
-          imageUrl = textReader.attributes().value("url").toString();
+          if (mediaContentType == "image")
+          {
+            imageUrl = textReader.attributes().value("url").toString();
+          }
+          else
+          {
+            enclosureUrl = textReader.attributes().value("url").toString();
+          }
           mediaContentAlreadySeen = true;
         }
       }
@@ -276,16 +315,19 @@ void LinHtmlDisplayForm::parseRSSItem(
       {
         description = parseRSSText("description", textReader);
       }
+      else if (textReader.name() == "pubDate")
+      {
+        pubDate = parseRSSText("pubDate", textReader);
+      }
     }
 
     else if (textReader.isEndElement())
     {
       if (textReader.name() == "item")
       {
-        // marshall the entire item into the HTML display:
+        // marshal the entire item into the HTML display:
         if (!title.isEmpty())
         {
-          htmlOutput += "<b>";
           if (!link.isEmpty())
           {
             htmlOutput += "<a href=\"";
@@ -298,14 +340,22 @@ void LinHtmlDisplayForm::parseRSSItem(
           {
             htmlOutput += title;
           }
-          htmlOutput += "</b><br>\n";
+          htmlOutput += "</b>";
         }
+        htmlOutput += "<br>\n";
 
         if (!imageUrl.isEmpty())
         {
-          htmlOutput += "<img src=\"";
+          htmlOutput += "<img class=\"main\" src=\"";
           htmlOutput += imageUrl;
           htmlOutput += "\"/><br>\n";
+        }
+
+        if (!enclosureUrl.isEmpty())
+        {
+          htmlOutput += "<a href=\"";
+          htmlOutput += enclosureUrl;
+          htmlOutput += "\"><img src=\"qrc:/icons/podcast_icon&48.png\"></a>\n";
         }
 
         if (!description.isEmpty())
@@ -314,6 +364,30 @@ void LinHtmlDisplayForm::parseRSSItem(
           htmlOutput += description;
           htmlOutput += "</p>\n";
         }
+
+        if (!faviconUrl.isEmpty())
+        {
+          htmlOutput += "<img class=\"footer\" src=\"";
+          htmlOutput += faviconUrl;
+          htmlOutput += "\"/>";
+          if (pubDate.isEmpty())
+          {
+            htmlOutput += "<br>\n";
+          }
+          else
+          {
+            htmlOutput += " &nbsp; ";
+          }
+        }
+
+        if (!pubDate.isEmpty())
+        {
+          htmlOutput += "<small>";
+          htmlOutput += pubDate;
+          htmlOutput += "</small><br>\n";
+        }
+
+        htmlOutput += "<hr width=\"60%\"/>";
 
         break;
       }

@@ -1,5 +1,5 @@
 //
-// lincategorywidgetitem.h
+// lincollectionwidgetitem.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,17 +20,25 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINCATEGORYWIDGETITEM_H
-#define LINCATEGORYWIDGETITEM_H
+#ifndef LINCOLLECTIONWIDGETITEM_H
+#define LINCOLLECTIONWIDGETITEM_H
 
 #include <QListWidgetItem>
 #include "linfilteritems.h"
+#include <QSet>
+#include <QString>
 
-class LinCategoryWidgetItem: public QListWidgetItem
+class QSettings;
+
+class LinCollectionWidgetItem: public QListWidgetItem
 {
 public:
-  LinCategoryWidgetItem(
-    QString title);
+  LinCollectionWidgetItem(
+    QString title,
+    FrequencyType frequency,
+    MediaType media,
+    LanguageType language,
+    const QSet<QString> &requiredTags);
 
   void setFrequency(
     FrequencyType frequency);
@@ -38,27 +46,32 @@ public:
   void setMedia(
     MediaType media);
 
-  void setContent(
-    ContentType content);
-
   void setLanguage(
     LanguageType language);
 
-  void setTag(
+/*
+  void insertTag(
     QString tag);
+*/
 
   FrequencyType getFrequency() { return frequency; }
   MediaType getMedia() { return media; }
-  ContentType getContent() { return content; }
   LanguageType getLanguage() { return language; }
-  QString getTag() { return tag; }
+
+  QSet<QString>::const_iterator requiredTagsBegin()
+    { return requiredTags.constBegin(); }
+
+  QSet<QString>::const_iterator requiredTagsEnd()
+    { return requiredTags.constEnd(); }
+
+  void addToSettings(
+    QSettings &settings);
 
 private:
   FrequencyType frequency;
   MediaType media;
-  ContentType content;
   LanguageType language;
-  QString tag;
+  QSet<QString> requiredTags;
 };
 
-#endif // LINCATEGORYWIDGETITEM_H
+#endif // LINCOLLECTIONWIDGETITEM_H

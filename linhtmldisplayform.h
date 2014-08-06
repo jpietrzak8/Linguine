@@ -50,7 +50,10 @@ public:
   ~LinHtmlDisplayForm();
 
   void displayText(
-    QString textUrl);
+    QString feedName,
+    QString sourceUrl,
+    QString faviconUrl,
+    bool openExternalBrowser);
 
 protected:
   void closeEvent(
@@ -79,6 +82,7 @@ private:
   MainWindow *mainWindow;
 
   QString sourceUrl;
+  QString faviconUrl;
   QNetworkAccessManager *qnam;
   QNetworkReply *reply;
   QWebViewSelectionSuppressor *suppressor;

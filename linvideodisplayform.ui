@@ -14,16 +14,9 @@
    <string>Linguine Video</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QWidget" name="videoWidget" native="true">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
+   <property name="margin">
+    <number>8</number>
+   </property>
    <item row="0" column="1">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
@@ -93,9 +86,17 @@
      </property>
     </widget>
    </item>
+   <item row="0" column="0">
+    <widget class="QWidget" name="videoWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
   </layout>
-  <zorder>openUIButton</zorder>
-  <zorder></zorder>
   <zorder>seekSlider</zorder>
   <zorder>videoWidget</zorder>
  </widget>

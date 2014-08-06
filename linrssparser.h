@@ -74,8 +74,9 @@ private:
   QString channelSummary;
 //  QString itemTitle;
   QString itemGuid;
-  QString itemPubDate;
+//  QString itemPubDate;
 //  QString mediaUrl;
+//  QString itemSummary;
 
   QString imageUrl;
 //  QPixmap image;

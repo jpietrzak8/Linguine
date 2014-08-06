@@ -233,11 +233,18 @@ LinNowPlayingForm::~LinNowPlayingForm()
 
 
 void LinNowPlayingForm::setProgram(
+  QString feedName,
   QPixmap image,
   QString title,
+  QString summary,
+  QString pubDate,
   QString mediaUrl)
 {
   if (gstreamerInUse) stopPlaying();
+
+  setWindowTitle(feedName);
+  dataDialog->setSummary(summary);
+  dataDialog->setPubDate(pubDate);
 
   currentImage = image;
   displayImage();
