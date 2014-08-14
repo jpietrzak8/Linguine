@@ -24,9 +24,6 @@
 #include "ui_linhtmldisplayform.h"
 
 #include "mainwindow.h"
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QXmlStreamReader>
 #include <QMaemo5InformationBox>
 #include <QDesktopServices>
 
@@ -34,18 +31,14 @@
 
 #include "qwebviewselectionsuppressor.h"
 
-#define MEDIA_NS "http://search.yahoo.com/mrss/"
 
 LinHtmlDisplayForm::LinHtmlDisplayForm(
-  MainWindow *mw,
-  QNetworkAccessManager *q)
+  MainWindow *mw)
   : QWidget(mw),
+    useExternalBrowser(true),
     ui(new Ui::LinHtmlDisplayForm),
     mainWindow(mw),
-    qnam(q),
-    reply(0),
-    suppressor(0),
-    useExternalBrowser(true)
+    suppressor(0)
 {
   ui->setupUi(this);
 
@@ -60,6 +53,9 @@ LinHtmlDisplayForm::LinHtmlDisplayForm(
 
   // Initialize the display:
   ui->htmlDisplay->setHtml(blankHtmlPage);
+
+  // Set up the HTML boilerplate:
+  htmlPrefix = constructHtmlPrefix();
 
   // Manage links:
   ui->htmlDisplay->page()->setLinkDelegationPolicy(
@@ -79,28 +75,6 @@ LinHtmlDisplayForm::~LinHtmlDisplayForm()
 }
 
 
-void LinHtmlDisplayForm::displayText(
-  QString feedName,
-  QString sUrl,
-  QString fUrl,
-  bool openExternalBrowser)
-{
-  setWindowTitle(feedName);
-
-  sourceUrl = sUrl;
-  faviconUrl = fUrl;
-  reply = qnam->get(QNetworkRequest(QUrl(sourceUrl)));
-
-  connect(
-    reply,
-    SIGNAL(finished()),
-    this,
-    SLOT(parseRSSFeed()));
-
-  useExternalBrowser = openExternalBrowser;
-}
-
-
 void LinHtmlDisplayForm::closeEvent(
   QCloseEvent *event)
 {
@@ -112,6 +86,27 @@ void LinHtmlDisplayForm::closeEvent(
 
   // Reset the page:
   ui->htmlDisplay->setHtml(blankHtmlPage);
+}
+
+
+void LinHtmlDisplayForm::setHtml(
+  QString htmlData)
+{
+  ui->htmlDisplay->setHtml(htmlData);
+}
+
+
+void LinHtmlDisplayForm::setHtml(
+  QString htmlData,
+  QString sourceUrl)
+{
+  ui->htmlDisplay->setHtml(htmlData, sourceUrl);
+}
+
+
+QWebFrame *LinHtmlDisplayForm::getFrame()
+{
+  return ui->htmlDisplay->page()->mainFrame();
 }
 
 
@@ -129,300 +124,31 @@ void LinHtmlDisplayForm::onLinkClicked(
 }
 
 
-void LinHtmlDisplayForm::parseRSSFeed()
+QString LinHtmlDisplayForm::constructHtmlPrefix()
 {
-  QXmlStreamReader textReader(reply);
-
-  while (!textReader.atEnd())
-  {
-    textReader.readNext();
-
-    if (textReader.isStartElement())
-    {
-      if (textReader.name() == "channel")
-      {
-        parseRSSChannel(textReader);
-        // For now, only parse one channel:
-        break;
-      }
-    }
-  }
-
-  if (textReader.hasError())
-  {
-    QString err;
-    err.append("QXmlStreamReader returned error: ");
-    err.append(textReader.errorString());
-    err.append("\nFor URL: ");
-    err.append(sourceUrl);
-    QMaemo5InformationBox::information(0, err, 0);
-    qDebug() << err;
-    return;
-  }
-
-  reply->deleteLater();
-}
-
-
-void LinHtmlDisplayForm::parseRSSChannel(
-  QXmlStreamReader &textReader)
-{
-  QString htmlOutput;
-
   // Create the head portion of the HTML:
-  htmlOutput += "<html>\n <head>\n  <title>Linguine Output</title>\n";
+  htmlPrefix = "<html>\n <head>\n  <title>Linguine Output</title>\n";
   // Place some CSS in the head of the html:
-  htmlOutput += "  <style type=\"text/css\">\n";
-  htmlOutput += "   hr {color: " + mainWindow->getAccentColor() + ";}\n";
-  htmlOutput += "   img.main {max-width: 100%; height: auto;}\n";
-  htmlOutput += "   img.footer {height: 20px; width: auto;}\n";
-//  htmlOutput += "   body {-webkit-user-select: none;}\n";
-  htmlOutput += "   body {\n";
-  htmlOutput += "    color: " + mainWindow->getDefaultTextColor() + ";\n";
-  htmlOutput += "    background-color: " + mainWindow->getBackgroundColor() + ";\n";
-  htmlOutput += "    font-family: \"" + mainWindow->getSystemFontFamily() + "\", sans-serif;\n";
-  htmlOutput += "    font-size: x-large;\n";
-  htmlOutput += "   }\n";
-  htmlOutput += "   a:link {\n";
-  htmlOutput += "    color: " + mainWindow->getActiveTextColor() + ";\n";
-  htmlOutput += "   }\n";
-  htmlOutput += "   a:visited {\n";
-  htmlOutput += "    color: " + mainWindow->getSecondaryTextColor() + ";\n";
-  htmlOutput += "   }\n";
-  htmlOutput += "  </style>\n";
+  htmlPrefix += "  <style type=\"text/css\">\n";
+  htmlPrefix += "   hr {color: " + mainWindow->getAccentColor() + ";}\n";
+  htmlPrefix += "   img.main {max-width: 100%; height: auto; float: left; margin-right: 10px;}\n";
+  htmlPrefix += "   img.footer {height: 20px; width: auto;}\n";
+//  htmlPrefix += "   body {-webkit-user-select: none;}\n";
+  htmlPrefix += "   body {\n";
+  htmlPrefix += "    color: " + mainWindow->getDefaultTextColor() + ";\n";
+  htmlPrefix += "    background-color: " + mainWindow->getBackgroundColor() + ";\n";
+  htmlPrefix += "    font-family: \"" + mainWindow->getSystemFontFamily() + "\", sans-serif;\n";
+  htmlPrefix += "    font-size: x-large;\n";
+  htmlPrefix += "   }\n";
+  htmlPrefix += "   a:link {\n";
+  htmlPrefix += "    color: " + mainWindow->getActiveTextColor() + ";\n";
+  htmlPrefix += "   }\n";
+  htmlPrefix += "   a:visited {\n";
+  htmlPrefix += "    color: " + mainWindow->getSecondaryTextColor() + ";\n";
+  htmlPrefix += "   }\n";
+  htmlPrefix += "  </style>\n";
   // Finish the head portion, start the body:
-  htmlOutput += " </head>\n <body>\n";
+  htmlPrefix += " </head>\n <body>\n";
 
-  while (!textReader.atEnd())
-  {
-    textReader.readNext();
-
-    if (textReader.isStartElement())
-    {
-      if (textReader.name() == "item")
-      {
-        parseRSSItem(htmlOutput, textReader);
-      }
-    }
-
-    else if (textReader.isEndElement())
-    {
-      if (textReader.name() == "channel")
-      {
-        htmlOutput +=" </body>\n</html>";
-        ui->htmlDisplay->setHtml(htmlOutput, sourceUrl);
-
-        break;
-      }
-    }
-  }
+  return htmlPrefix;
 }
-
-
-void LinHtmlDisplayForm::parseRSSItem(
-  QString &htmlOutput,
-  QXmlStreamReader &textReader)
-{
-  QString title;
-  QString link;
-  QString imageUrl;
-  QString enclosureUrl;
-  QString enclosureType;
-  QString mediaContentType;
-  QString description;
-  QString pubDate;
-  bool mediaContentAlreadySeen = false;
-
-  while (!textReader.atEnd())
-  {
-    textReader.readNext();
-
-    if (textReader.isStartElement())
-    {
-      if (textReader.name() == "title")
-      {
-        title = parseRSSText("title", textReader);
-      }
-      else if (textReader.name() == "link")
-      {
-        link = parseRSSText("link", textReader);
-      }
-      else if (textReader.name() == "enclosure")
-      {
-        if (textReader.attributes().hasAttribute("type"))
-        {
-          enclosureType = textReader.attributes().value("type").toString();
-        }
-
-        if (textReader.attributes().hasAttribute("url"))
-        {
-          if (enclosureType == "image/jpeg")
-          {
-            // Use the enclosure as our image:
-            imageUrl = textReader.attributes().value("url").toString();
-          }
-          else
-          {
-            enclosureUrl = textReader.attributes().value("url").toString();
-          }
-        }
-      }
-      else if (textReader.name() == "thumbnail")
-      {
-        // For some reason, BBC throws two thumbnails into each item.
-        // The second one is always bigger, so we'll just let it overwrite
-        // the first one.
-        // Also, the Australian BC puts both "content" and "thumbnail"
-        // images into its rss; if content has already been seen, I'll just
-        // ignore the thumbnail:
-        if ( !mediaContentAlreadySeen
-          && QString::compare(
-            textReader.namespaceUri().toString(),
-            MEDIA_NS,
-            Qt::CaseInsensitive) == 0
-          && textReader.attributes().hasAttribute("url"))
-        {
-          imageUrl = textReader.attributes().value("url").toString();
-        }
-      }
-      else if (textReader.name() == "content")
-      {
-        if (textReader.attributes().hasAttribute("medium"))
-        {
-          mediaContentType = textReader.attributes().value("medium").toString();
-        }
-
-        // If there are multiple content items, choose the first one:
-        if ( !mediaContentAlreadySeen
-          && QString::compare(
-            textReader.namespaceUri().toString(),
-            MEDIA_NS,
-            Qt::CaseInsensitive) == 0
-          && textReader.attributes().hasAttribute("url"))
-        {
-          if (mediaContentType == "image")
-          {
-            imageUrl = textReader.attributes().value("url").toString();
-          }
-          else
-          {
-            enclosureUrl = textReader.attributes().value("url").toString();
-          }
-          mediaContentAlreadySeen = true;
-        }
-      }
-      else if (textReader.name() == "description")
-      {
-        description = parseRSSText("description", textReader);
-      }
-      else if (textReader.name() == "pubDate")
-      {
-        pubDate = parseRSSText("pubDate", textReader);
-      }
-    }
-
-    else if (textReader.isEndElement())
-    {
-      if (textReader.name() == "item")
-      {
-        // marshal the entire item into the HTML display:
-        if (!title.isEmpty())
-        {
-          if (!link.isEmpty())
-          {
-            htmlOutput += "<a href=\"";
-            htmlOutput += link;
-            htmlOutput += "\">";
-            htmlOutput += title;
-            htmlOutput += "</a>";
-          }
-          else
-          {
-            htmlOutput += title;
-          }
-          htmlOutput += "</b>";
-        }
-        htmlOutput += "<br>\n";
-
-        if (!imageUrl.isEmpty())
-        {
-          htmlOutput += "<img class=\"main\" src=\"";
-          htmlOutput += imageUrl;
-          htmlOutput += "\"/><br>\n";
-        }
-
-        if (!enclosureUrl.isEmpty())
-        {
-          htmlOutput += "<a href=\"";
-          htmlOutput += enclosureUrl;
-          htmlOutput += "\"><img src=\"qrc:/icons/podcast_icon&48.png\"></a>\n";
-        }
-
-        if (!description.isEmpty())
-        {
-          htmlOutput += "<p>";
-          htmlOutput += description;
-          htmlOutput += "</p>\n";
-        }
-
-        if (!faviconUrl.isEmpty())
-        {
-          htmlOutput += "<img class=\"footer\" src=\"";
-          htmlOutput += faviconUrl;
-          htmlOutput += "\"/>";
-          if (pubDate.isEmpty())
-          {
-            htmlOutput += "<br>\n";
-          }
-          else
-          {
-            htmlOutput += " &nbsp; ";
-          }
-        }
-
-        if (!pubDate.isEmpty())
-        {
-          htmlOutput += "<small>";
-          htmlOutput += pubDate;
-          htmlOutput += "</small><br>\n";
-        }
-
-        htmlOutput += "<hr width=\"60%\"/>";
-
-        break;
-      }
-    }
-  }
-}
-
-
-QString LinHtmlDisplayForm::parseRSSText(
-  QString elementName,
-  QXmlStreamReader &textReader)
-{
-  QString textString;
-
-  while (!textReader.atEnd())
-  {
-    textReader.readNext();
-
-    if (textReader.isEndElement())
-    {
-      if (textReader.name() == elementName)
-      {
-        return textString;
-      }
-      else
-      {
-        textString.append(textReader.text().toString());
-      }
-    }
-    else
-    {
-      textString.append(textReader.text().toString());
-    }
-  }
-
-  return textString;
-}
-

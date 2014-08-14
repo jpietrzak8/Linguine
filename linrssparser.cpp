@@ -21,6 +21,7 @@
 //
 
 #include "linrssparser.h"
+#include "linimageloader.h"
 
 #include <QXmlStreamReader>
 #include <QUrl>
@@ -41,8 +42,15 @@ LinRSSParser::LinRSSParser(
     sourceUrl(s),
     qnam(manager),
     reply(0),
+    imageLoader(0),
     imageAlreadySeen(false)
 {
+}
+
+
+LinRSSParser::~LinRSSParser()
+{
+  if (imageLoader) delete imageLoader;
 }
 
 
@@ -95,15 +103,11 @@ void LinRSSParser::parseRSSFeed()
   // reset the item description:
   nwi->resetTitle();
 
-  // Retrieve the image:
   nwi->setFaviconUrl(imageUrl);
-  reply = qnam->get(QNetworkRequest(QUrl(imageUrl)));
 
-  connect(
-    reply,
-    SIGNAL(finished()),
-    this,
-    SLOT(loadImage()));
+  // Retrieve the image:
+  if (imageLoader) delete imageLoader; // work on this
+  imageLoader = new LinImageLoader(nwi, imageUrl, qnam);
 }
 
 
@@ -299,35 +303,4 @@ QString LinRSSParser::parseRSSText(
   }
 
   return textString;
-}
-
-
-void LinRSSParser::loadImage()
-{
-//qDebug() << "error() " << reply->error();
-  // support some amount of redirection here:
-  QUrl redirectUrl = 
-    reply->attribute(QNetworkRequest::RedirectionTargetAttribute).toUrl();
-
-  if (!redirectUrl.isEmpty())
-  {
-    // Follow the redirect:
-//qDebug() << "redirect: " << redirectUrl;
-    reply->deleteLater();
-    reply = qnam->get(QNetworkRequest(redirectUrl));
-    connect(
-      reply,
-      SIGNAL(finished()),
-      this,
-      SLOT(loadImage()));
-    return;
-  }
-
-  QByteArray ba = reply->readAll();
-
-  nwi->setImage(ba);
-
-  // Clean up the reply:
-  reply->deleteLater();
-  reply = 0;
 }

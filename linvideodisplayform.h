@@ -31,7 +31,6 @@
 
 //class LinFullScreenButton;
 class LinGstDataDialog;
-class MainWindow;
 class QResizeEvent;
 class QCloseEvent;
 
@@ -45,7 +44,7 @@ class LinVideoDisplayForm : public QWidget
   
 public:
   LinVideoDisplayForm(
-    MainWindow *mw);
+    QWidget *parent);
 
   ~LinVideoDisplayForm();
 
@@ -131,8 +130,6 @@ private:
 
   LinGstDataDialog *dataDialog;
   QTimer timer;
-
-  MainWindow *mainWindow;
 };
 
 #endif // LINVIDEODISPLAYFORM_H

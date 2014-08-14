@@ -10,8 +10,8 @@ class LinFlickableTabBar: public QListWidget
   Q_OBJECT
 
 public:
-  LinFlickableTabBar(
-    QWidget *parent);
+  explicit LinFlickableTabBar(
+    QWidget *parent = 0);
 
   bool matchesCurrentCollection(
     LinNewsfeedWidgetItem *nwi);

@@ -26,11 +26,13 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+  QApplication app(argc, argv);
 
-    MainWindow mainWindow;
-    mainWindow.setOrientation(MainWindow::ScreenOrientationAuto);
-    mainWindow.showExpanded();
+  app.setApplicationName("Linguine");
 
-    return app.exec();
+  MainWindow mainWindow;
+  mainWindow.setOrientation(MainWindow::ScreenOrientationAuto);
+  mainWindow.showExpanded();
+
+  return app.exec();
 }

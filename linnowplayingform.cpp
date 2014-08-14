@@ -192,6 +192,7 @@ LinNowPlayingForm::LinNowPlayingForm(
     paused(true),
     checkedSeeking(false),
     percentagePlayed(0),
+    hasImage(false),
     dataDialog(0),
     seekDialog(0)
 {
@@ -240,70 +241,18 @@ void LinNowPlayingForm::setProgram(
   QString pubDate,
   QString mediaUrl)
 {
-  if (gstreamerInUse) stopPlaying();
-
   setWindowTitle(feedName);
   dataDialog->setSummary(summary);
   dataDialog->setPubDate(pubDate);
 
   currentImage = image;
+  hasImage = true;
   displayImage();
 
   ui->vNameLabel->setText(title);
   ui->hNameLabel->setText(title);
 
-  GstElement *player = gst_element_factory_make("playbin2", "player");
-
-  if (!player)
-  {
-    QString err("Unable to create GStreamer element 'playbin2'");
-    QMaemo5InformationBox::information(this, err);
-    qDebug() << err;
-    return;
-  }
-
-  // Set up player for audio-only use:
-  gint flags;
-  g_object_get(G_OBJECT(player), "flags", &flags, NULL);
-  flags |= GST_PLAY_FLAG_AUDIO;
-  flags &= ~(GST_PLAY_FLAG_VIDEO | GST_PLAY_FLAG_VIS);
-  g_object_set(G_OBJECT(player), "flags", flags, NULL);
-
-  // Define the URI for the player:
-  QByteArray ba = mediaUrl.toAscii();
-  g_object_set(G_OBJECT(player), "uri", ba.data(), NULL);
-
-  runningElement = player;
-
-/*
-  runningElement = gst_pipeline_new("pipe");
-
-  if (!runningElement)
-  {
-qDebug() << "Unable to create GStreamer pipeline";
-//    throw something("Unable to create GStreamer pipeline");
-    return;
-  }
-
-  gst_bin_add_many(
-    GST_BIN(runningElement),
-    player,
-    NULL);
-*/
-
-  GstBus *bus = gst_element_get_bus(GST_ELEMENT(runningElement));
-  gst_bus_add_watch(bus, linGstBusCallback, this);
-  gst_object_unref(bus);
-
-//  gst_element_set_state(runningElement, GST_STATE_PAUSED);
-//  paused = true;
-  gst_element_set_state(runningElement, GST_STATE_PLAYING);
-  setPaused(false);
-
-  gstreamerInUse = true;
-
-  ui->vPlayButton->setEnabled(true);
-  ui->hPlayButton->setEnabled(true);
+  setupGSTPlayer(mediaUrl);
 }
 
 
@@ -479,6 +428,8 @@ void LinNowPlayingForm::displayAudioTags()
 
 void LinNowPlayingForm::displayImage()
 {
+  if (!hasImage) return;
+
   if (ui->stackedWidget->currentWidget() == ui->verticalPage)
   {
     ui->vImageLabel->setPixmap(
@@ -629,4 +580,81 @@ bool LinNowPlayingForm::gstElementQuery(
 void LinNowPlayingForm::setupDataDialog()
 {
   dataDialog->retrieveDuration(runningElement);
+}
+
+
+void LinNowPlayingForm::setupTOR(
+  QString feedName,
+  QString title,
+  QString summary,
+  QString mediaUrl)
+{
+  setWindowTitle(feedName);
+  dataDialog->setSummary(summary);
+  ui->vNameLabel->setText(title);
+  ui->hNameLabel->setText(title);
+
+  hasImage = false;
+
+  setupGSTPlayer(mediaUrl);
+}
+
+
+void LinNowPlayingForm::setupGSTPlayer(
+  QString mediaUrl)
+{
+  if (gstreamerInUse) stopPlaying();
+
+  GstElement *player = gst_element_factory_make("playbin2", "player");
+
+  if (!player)
+  {
+    QString err("Unable to create GStreamer element 'playbin2'");
+    QMaemo5InformationBox::information(this, err);
+    qDebug() << err;
+    return;
+  }
+
+  // Set up player for audio-only use:
+  gint flags;
+  g_object_get(G_OBJECT(player), "flags", &flags, NULL);
+  flags |= GST_PLAY_FLAG_AUDIO;
+  flags &= ~(GST_PLAY_FLAG_VIDEO | GST_PLAY_FLAG_VIS);
+  g_object_set(G_OBJECT(player), "flags", flags, NULL);
+
+  // Define the URI for the player:
+  QByteArray ba = mediaUrl.toAscii();
+  g_object_set(G_OBJECT(player), "uri", ba.data(), NULL);
+
+  runningElement = player;
+
+/*
+  runningElement = gst_pipeline_new("pipe");
+
+  if (!runningElement)
+  {
+qDebug() << "Unable to create GStreamer pipeline";
+//    throw something("Unable to create GStreamer pipeline");
+    return;
+  }
+
+  gst_bin_add_many(
+    GST_BIN(runningElement),
+    player,
+    NULL);
+*/
+
+  GstBus *bus = gst_element_get_bus(GST_ELEMENT(runningElement));
+  gst_bus_add_watch(bus, linGstBusCallback, this);
+  gst_object_unref(bus);
+
+//  gst_element_set_state(runningElement, GST_STATE_PAUSED);
+//  paused = true;
+  gst_element_set_state(runningElement, GST_STATE_PLAYING);
+  setPaused(false);
+
+  gstreamerInUse = true;
+
+  ui->vPlayButton->setEnabled(true);
+  ui->hPlayButton->setEnabled(true);
 }

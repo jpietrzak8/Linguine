@@ -91,6 +91,7 @@ void LinNewsfeedWidgetItem::setFaviconUrl(
 }
 
 
+/*
 void LinNewsfeedWidgetItem::setImage(
   const QByteArray &ba)
 {
@@ -98,6 +99,7 @@ void LinNewsfeedWidgetItem::setImage(
 
   setIcon(QIcon(image));
 }
+*/
 
 
 void LinNewsfeedWidgetItem::setItemTitle(

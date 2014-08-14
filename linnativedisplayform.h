@@ -1,5 +1,5 @@
 //
-// linhtmldisplayform.h
+// linnativedisplayform.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,65 +20,57 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINHTMLDISPLAYFORM_H
-#define LINHTMLDISPLAYFORM_H
+#ifndef LINNATIVEDISPLAYFORM_H
+#define LINNATIVEDISPLAYFORM_H
 
+#include "linhtmldisplayform.h"
 #include <QWidget>
 #include <QString>
 
 class MainWindow;
+class QNetworkAccessManager;
+class QNetworkReply;
+class QXmlStreamReader;
 class QWebViewSelectionSuppressor;
-class QCloseEvent;
 class QUrl;
-class QWebFrame;
 
-namespace Ui {
-class LinHtmlDisplayForm;
-}
-
-class LinHtmlDisplayForm : public QWidget
+class LinNativeDisplayForm : public LinHtmlDisplayForm
 {
   Q_OBJECT
   
 public:
-  LinHtmlDisplayForm(
-    MainWindow *mainWindow);
+  LinNativeDisplayForm(
+    MainWindow *mainWindow,
+    QNetworkAccessManager *qnam);
 
-  ~LinHtmlDisplayForm();
+  ~LinNativeDisplayForm();
 
-protected:
-  void closeEvent(
-    QCloseEvent *event);
-
-  void setHtml(
-    QString htmlData);
-
-  void setHtml(
-    QString htmlData,
-    QString sourceUrl);
-
-  QWebFrame *getFrame();
-
-  QString htmlPrefix;
-
-  bool hideImages;
-  bool useExternalPlayer;
-  bool useExternalBrowser;
+  void displayText(
+    QString feedName,
+    QString sourceUrl,
+    QString faviconUrl,
+    bool hideImagesFlag,
+    bool openExternalBrowser);
 
 private slots:
-  void onLinkClicked(
-    const QUrl &url);
-
+  void parseRSSFeed();
+  
 private:
-  QString constructHtmlPrefix();
+  void parseRSSChannel(
+    QXmlStreamReader &textReader);
 
-  Ui::LinHtmlDisplayForm *ui;
+  void parseRSSItem(
+    QString &htmlOutput,
+    QXmlStreamReader &textReader);
 
-  MainWindow *mainWindow;
+  QString parseRSSText(
+    QString elementName,
+    QXmlStreamReader &textReader);
 
-  QWebViewSelectionSuppressor *suppressor;
-
-  QString blankHtmlPage;
+  QString sourceUrl;
+  QString faviconUrl;
+  QNetworkAccessManager *qnam;
+  QNetworkReply *reply;
 };
 
-#endif // LINHTMLDISPLAYFORM_H
+#endif // LINNATIVEDISPLAYFORM_H

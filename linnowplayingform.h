@@ -67,6 +67,12 @@ public:
 
   void setupDataDialog();
 
+  void setupTOR(
+    QString feedName,
+    QString title,
+    QString summary,
+    QString mediaUrl);
+
 public slots:
   void setProgram(
     QString feedName,
@@ -115,6 +121,9 @@ private:
   void setPaused(
     bool p);
 
+  void setupGSTPlayer(
+    QString mediaUrl);
+
   Ui::LinNowPlayingForm *ui;
 
   GstElement *runningElement;
@@ -123,6 +132,7 @@ private:
   bool paused;
   bool checkedSeeking;
   int percentagePlayed;
+  bool hasImage;
 
   QPixmap currentImage;
   LinGstDataDialog *dataDialog;

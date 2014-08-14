@@ -49,6 +49,12 @@ LinPreferencesForm::LinPreferencesForm(QWidget *parent) :
     openExternalBrowserFlag = settings.value("OpenExternalBrowser").toBool();
     ui->browserCheckBox->setChecked(openExternalBrowserFlag);
   }
+
+  if (settings.contains("HideImages"))
+  {
+    hideImagesFlag = settings.value("HideImages").toBool();
+    ui->imagesCheckBox->setChecked(hideImagesFlag);
+  }
 }
 
 
@@ -58,6 +64,7 @@ LinPreferencesForm::~LinPreferencesForm()
 
   settings.setValue("OpenExternalPlayer", openExternalPlayerFlag);
   settings.setValue("OpenExternalBrowser", openExternalBrowserFlag);
+  settings.setValue("HideImages", hideImagesFlag);
 
   delete ui;
 }
@@ -72,4 +79,9 @@ void LinPreferencesForm::on_playerCheckBox_toggled(bool checked)
 void LinPreferencesForm::on_browserCheckBox_toggled(bool checked)
 {
   openExternalBrowserFlag = checked;
+}
+
+void LinPreferencesForm::on_imagesCheckBox_toggled(bool checked)
+{
+  hideImagesFlag = checked;
 }

@@ -1,5 +1,5 @@
 //
-// linhtmldisplayform.h
+// lintordisplayform.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,65 +20,54 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINHTMLDISPLAYFORM_H
-#define LINHTMLDISPLAYFORM_H
+#ifndef LINTORDISPLAYFORM_H
+#define LINTORDISPLAYFORM_H
 
-#include <QWidget>
+#include "linhtmldisplayform.h"
+#include "lintoritems.h"
+#include "linnowplayingform.h"
+#include "linvideodisplayform.h"
 #include <QString>
+#include <QList>
 
 class MainWindow;
+class QNetworkAccessManager;
+class QNetworkReply;
+class QXmlStreamReader;
 class QWebViewSelectionSuppressor;
-class QCloseEvent;
 class QUrl;
-class QWebFrame;
 
-namespace Ui {
-class LinHtmlDisplayForm;
-}
-
-class LinHtmlDisplayForm : public QWidget
+class LinTORDisplayForm : public LinHtmlDisplayForm
 {
   Q_OBJECT
   
 public:
-  LinHtmlDisplayForm(
-    MainWindow *mainWindow);
+  LinTORDisplayForm(
+    MainWindow *mainWindow,
+    QNetworkAccessManager *qnam);
 
-  ~LinHtmlDisplayForm();
+  ~LinTORDisplayForm();
 
-protected:
-  void closeEvent(
-    QCloseEvent *event);
+  void setupTORDisplay(
+    QString windowTitle,
+    bool openExternalPlayer,
+    bool openExternalBrowser);
 
-  void setHtml(
-    QString htmlData);
+  void displayItems(
+    const LinTORItemCollection &items);
 
-  void setHtml(
-    QString htmlData,
-    QString sourceUrl);
-
-  QWebFrame *getFrame();
-
-  QString htmlPrefix;
-
-  bool hideImages;
-  bool useExternalPlayer;
-  bool useExternalBrowser;
-
-private slots:
-  void onLinkClicked(
-    const QUrl &url);
+  Q_INVOKABLE void displayTORmedia(
+    QString id);
 
 private:
-  QString constructHtmlPrefix();
-
-  Ui::LinHtmlDisplayForm *ui;
-
   MainWindow *mainWindow;
+  QString sourceUrl;
+  QString faviconUrl;
+  QNetworkAccessManager *qnam;
+  QNetworkReply *reply;
 
-  QWebViewSelectionSuppressor *suppressor;
-
-  QString blankHtmlPage;
+  LinNowPlayingForm *nowPlayingForm;
+  LinVideoDisplayForm *videoDisplayForm;
 };
 
-#endif // LINHTMLDISPLAYFORM_H
+#endif // LINTORDISPLAYFORM_H

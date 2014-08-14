@@ -27,19 +27,25 @@
 #include <QNetworkAccessManager>
 #include "linfilteritems.h"
 #include "linmaemo5theme.h"
+#include "lintoritems.h"
+#include "lintormanager.h"
+#include "lindbus.h"
 
 class LinFlickableTabBar;
 class LinNowPlayingForm;
 class LinVideoDisplayForm;
-class LinHtmlDisplayForm;
+//class LinHtmlDisplayForm;
+class LinNativeDisplayForm;
+class LinTORDisplayForm;
 class QListWidgetItem;
+class QTreeWidgetItem;
 class LinNewsfeedWidgetItem;
 class QXmlStreamReader;
 class LinPreferencesForm;
 class LinDocumentationForm;
 class LinAboutForm;
 class QSettings;
-class LinDBus;
+class LinAuthenticationDialog;
 
 namespace Ui {
   class MainWindow;
@@ -84,19 +90,32 @@ public:
   QString getSystemFontFamily()
     { return themeSettings.getSystemFontFamily(); }
 
-private slots:
-  void on_mediaListWidget_itemActivated(QListWidgetItem *item);
+  bool hasTORItem(QString id)
+    { return torManager->hasTORItem(id); }
 
-  void on_actionManage_Categories_triggered();
+  LinTORItem getTORItem(QString id)
+    { return torManager->getTORItem(id); }
+
+  void launchDBusPlayer(QString mediaUrl)
+    { dbus->launchMedia(mediaUrl); }
+
+private slots:
+  void on_sourcesListWidget_itemActivated(QListWidgetItem *item);
+  void on_nativeMediaList_itemActivated(QListWidgetItem *item);
+  void on_torTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
+
+  void on_actionSelect_New_Source_triggered();
   void on_actionLoad_Newsfeeds_File_triggered();
   void on_actionReset_Newsfeeds_triggered();
   void on_actionPreferences_triggered();
   void on_actionDocumentation_triggered();
   void on_actionAbout_triggered();
 
-//  void on_filterButton_clicked();
-
   void refilter(QListWidgetItem *item);
+
+  void displayTORItems();
+
+  void retryTORLogin();
 
 private:
   void retrieveNewsfeeds(
@@ -131,16 +150,31 @@ private:
   MediaType parseMedia(
     QString mediaStr);
 
+  void setupFeedSources();
+
+  void setupNativeUI();
+
+  void setupTORUI();
+
   Ui::MainWindow *ui;
 
-  LinFlickableTabBar *flickableTabBar;
   LinNowPlayingForm *nowPlayingForm;
   LinVideoDisplayForm *videoDisplayForm;
-  LinHtmlDisplayForm *htmlDisplayForm;
+//  LinHtmlDisplayForm *htmlDisplayForm;
+  LinNativeDisplayForm *nativeDisplayForm;
+  LinTORDisplayForm *torDisplayForm;
+  LinAuthenticationDialog *torAuthenticationDialog;
   LinPreferencesForm *preferencesForm;
   LinDocumentationForm *documentationForm;
   LinAboutForm *aboutForm;
   LinDBus *dbus;
+
+  bool nativeAlreadySetup;
+  LinFlickableTabBar *nativeFlickableTabBar;
+
+  bool torAlreadySetup;
+  LinFlickableTabBar *torFlickableTabBar;
+  LinTORManager *torManager;
 
   QNetworkAccessManager qnam;
 

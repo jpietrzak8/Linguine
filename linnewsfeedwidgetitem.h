@@ -60,8 +60,10 @@ public:
   void setFaviconUrl(
     QString faviconUrl);
 
+/*
   void setImage(
     const QByteArray &ba);
+*/
 
   void setItemTitle(
     QString itemTitle);

@@ -1,5 +1,5 @@
 //
-// linpreferencesform.h
+// linfeedsource.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,41 +20,52 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINPREFERENCESFORM_H
-#define LINPREFERENCESFORM_H
+#ifndef LINFEEDSOURCE_H
+#define LINFEEDSOURCE_H
 
-#include <QWidget>
+#include <QListWidgetItem>
 
-namespace Ui {
-class LinPreferencesForm;
-}
-
-class LinPreferencesForm : public QWidget
+enum SourceType
 {
-  Q_OBJECT
-  
-public:
-  explicit LinPreferencesForm(QWidget *parent = 0);
-  ~LinPreferencesForm();
-
-  bool openExternalPlayer() { return openExternalPlayerFlag; }
-
-  bool openExternalBrowser() { return openExternalBrowserFlag; }
-
-  bool hideImages() { return hideImagesFlag; }
-  
-private slots:
-  void on_playerCheckBox_toggled(bool checked);
-  void on_browserCheckBox_toggled(bool checked);
-
-  void on_imagesCheckBox_toggled(bool checked);
-
-private:
-  Ui::LinPreferencesForm *ui;
-
-  bool openExternalPlayerFlag;
-  bool openExternalBrowserFlag;
-  bool hideImagesFlag;
+  Native_Source,
+  TheOldReader_Source
+//  Facebook_Source
 };
 
-#endif // LINPREFERENCESFORM_H
+class LinFeedSource: public QListWidgetItem
+{
+public:
+  LinFeedSource(
+    SourceType type);
+
+  SourceType getType()
+    {return type;}
+
+private:
+  SourceType type;
+};
+
+
+class LinNativeFeedSource: public LinFeedSource
+{
+public:
+  LinNativeFeedSource();
+};
+
+
+class LinTORFeedSource: public LinFeedSource
+{
+public:
+  LinTORFeedSource();
+};
+
+
+/*
+class LinFacebookFeedSource: public LinFeedSource
+{
+public:
+  LinFacebookFeedSource();
+};
+*/
+
+#endif // LINFEEDSOURCE_H

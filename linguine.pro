@@ -40,7 +40,14 @@ SOURCES += main.cpp mainwindow.cpp \
     lindbus.cpp \
     linpreferencesform.cpp \
     lincollectiondialog.cpp \
-    lincollectionwidgetitem.cpp
+    lincollectionwidgetitem.cpp \
+    lintormanager.cpp \
+    linfeedsource.cpp \
+    lintoritems.cpp \
+    linimageloader.cpp \
+    linnativedisplayform.cpp \
+    lintordisplayform.cpp \
+    linauthenticationdialog.cpp
 HEADERS += mainwindow.h \
     linnowplayingform.h \
     linnewsfeedwidgetitem.h \
@@ -59,7 +66,14 @@ HEADERS += mainwindow.h \
     lindbus.h \
     linpreferencesform.h \
     lincollectiondialog.h \
-    lincollectionwidgetitem.h
+    lincollectionwidgetitem.h \
+    lintormanager.h \
+    linfeedsource.h \
+    lintoritems.h \
+    linimageloader.h \
+    linnativedisplayform.h \
+    lintordisplayform.h \
+    linauthenticationdialog.h
 FORMS += mainwindow.ui \
     linnowplayingform.ui \
     linvideodisplayform.ui \
@@ -70,7 +84,8 @@ FORMS += mainwindow.ui \
     linseekdialog.ui \
     linhtmldisplayform.ui \
     linpreferencesform.ui \
-    lincollectiondialog.ui
+    lincollectiondialog.ui \
+    linauthenticationdialog.ui
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
@@ -99,7 +114,7 @@ OTHER_FILES += \
 
 unix {
     CONFIG += link_pkgconfig
-    PKGCONFIG += gstreamer-0.10 gstreamer-interfaces-0.10
+    PKGCONFIG += gstreamer-0.10 gstreamer-interfaces-0.10 QJson
 }
 
 RESOURCES += \

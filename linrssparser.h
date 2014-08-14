@@ -29,6 +29,7 @@
 class QXmlStreamReader;
 class QNetworkReply;
 class QNetworkAccessManager;
+class LinImageLoader;
 
 class LinRSSParser: public QObject
 {
@@ -40,12 +41,12 @@ public:
     QString sourseUrl,
     QNetworkAccessManager *qnam);
 
+  ~LinRSSParser();
+
   void startParsing();
 
 private slots:
   void parseRSSFeed();
-
-  void loadImage();
 
 private:
   void parseRSSChannel(
@@ -80,6 +81,7 @@ private:
 
   QString imageUrl;
 //  QPixmap image;
+  LinImageLoader *imageLoader;
 
   bool imageAlreadySeen;
 };

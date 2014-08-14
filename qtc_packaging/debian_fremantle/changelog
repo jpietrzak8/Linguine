@@ -1,3 +1,10 @@
+linguine (0.3.0) unstable; urgency=low
+  * New "Feed Source Selection" window added.
+  * Adds "The Old Reader" as a source for newsfeeds.  (Support for "The Old Reader" features is still limited.)
+  * Ability to suppress display of images in a newsfeed, via a new entry in the Preferences panel.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Wed, 13 Aug 2014 21:03:48 -0400
+
 linguine (0.2.4) unstable; urgency=low
   * Collections of feeds can now be defined in the newsfeeds xml file.
   * Each newsfeed can now be given an arbitrary number of user-defined tags; these tags can then be used when creating collections.

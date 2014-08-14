@@ -13,5 +13,9 @@
         <file>icons/arrow_bottom_rigth_icon&amp;48.png</file>
         <file>icons/arrow_top_left_icon&amp;48.png</file>
         <file>icons/podcast_icon&amp;48.png</file>
+        <file>icons/tor_logo_horizontal_large.png</file>
+        <file>icons/tor_logo_icon_large.png</file>
+        <file>icons/linguine64.png</file>
+        <file>icons/blue-play.svg</file>
     </qresource>
 </RCC>

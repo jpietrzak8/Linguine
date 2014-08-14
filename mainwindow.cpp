@@ -28,14 +28,21 @@
 #include "linflickabletabbar.h"
 #include "linnowplayingform.h"
 #include "linvideodisplayform.h"
-#include "linhtmldisplayform.h"
+//#include "linhtmldisplayform.h"
+#include "linnativedisplayform.h"
+#include "lintordisplayform.h"
 #include "linpreferencesform.h"
 #include "lindocumentationform.h"
 #include "linaboutform.h"
 #include "linnewsfeedwidgetitem.h"
 #include "lincollectionwidgetitem.h"
-#include "linfilterdialog.h"
-#include "lindbus.h"
+#include "linauthenticationdialog.h"
+//#include "linfilterdialog.h"
+//#include "lindbus.h"
+#include "linfeedsource.h"
+//#include "lintormanager.h"
+//#include "lintoritems.h"
+#include "linauthenticationdialog.h"
 #include <QXmlStreamReader>
 #include <QFile>
 #include <QString>
@@ -50,52 +57,97 @@ MainWindow::MainWindow(
   QWidget *parent)
   : QMainWindow(parent),
     ui(new Ui::MainWindow),
-    flickableTabBar(0),
     nowPlayingForm(0),
     videoDisplayForm(0),
-    htmlDisplayForm(0),
+    nativeDisplayForm(0),
+    torDisplayForm(0),
+    torAuthenticationDialog(0),
     preferencesForm(0),
     documentationForm(0),
     aboutForm(0),
-    dbus(0)
+    dbus(0),
+    nativeAlreadySetup(false),
+    nativeFlickableTabBar(0),
+    torAlreadySetup(false),
+    torFlickableTabBar(0)
 {
   ui->setupUi(this);
 
   setAttribute(Qt::WA_Maemo5StackedWindow);
 
-  flickableTabBar = new LinFlickableTabBar(this);
-  ui->centralVerticalLayout->insertWidget(0, flickableTabBar);
-
-  connect(
-    flickableTabBar,
-    SIGNAL(itemActivated(QListWidgetItem *)),
-    this,
-    SLOT(refilter(QListWidgetItem *)));
-
-  nowPlayingForm = new LinNowPlayingForm(this);
-  videoDisplayForm = new LinVideoDisplayForm(this);
-  htmlDisplayForm = new LinHtmlDisplayForm(this, &qnam);
+//  nowPlayingForm = new LinNowPlayingForm(this);
+//  videoDisplayForm = new LinVideoDisplayForm(this);
+  nativeDisplayForm = new LinNativeDisplayForm(this, &qnam);
   preferencesForm = new LinPreferencesForm(this);
   documentationForm = new LinDocumentationForm(this);
   aboutForm = new LinAboutForm(this);
   dbus = new LinDBus();
 
+  setupFeedSources();
+
+  ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+
   QSettings settings("pietrzak.org", "Linguine");
 
-  retrieveNewsfeeds(settings);
+  if (settings.contains("visibleWidget"))
+  {
+    QString widgetName = settings.value("visibleWidget").toString();
+    if (widgetName == "NativeFeed")
+    {
+      setupNativeUI();
+      ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
+    }
+    else if (widgetName == "TORFeed")
+    {
+      setupTORUI();
+
+      torAuthenticationDialog->hideLabel();
+
+      if (torAuthenticationDialog->exec() == QDialog::Rejected)
+      {
+        // Fall back to source selector:
+        ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+      }
+      else
+      {
+        torManager->authenticate(
+          torAuthenticationDialog->getEmail(),
+          torAuthenticationDialog->getPasswd());
+
+        ui->mainStackedWidget->setCurrentWidget(ui->torFeedPage);
+      }
+    }
+  }
 }
 
 
 MainWindow::~MainWindow()
 {
+  QSettings settings("pietrzak.org", "Linguine");
+
+  if (ui->mainStackedWidget->currentWidget() == ui->feedSelectorPage)
+  {
+    settings.setValue("visibleWidget", "FeedSelector");
+  }
+  else if (ui->mainStackedWidget->currentWidget() == ui->nativeFeedPage)
+  {
+    settings.setValue("visibleWidget", "NativeFeed");
+  }
+  else if (ui->mainStackedWidget->currentWidget() == ui->torFeedPage)
+  {
+    settings.setValue("visibleWidget", "TORFeed");
+  }
+
   if (nowPlayingForm) delete nowPlayingForm;
   if (videoDisplayForm) delete videoDisplayForm;
-  if (htmlDisplayForm) delete htmlDisplayForm;
+  if (nativeDisplayForm) delete nativeDisplayForm;
+  if (torDisplayForm) delete torDisplayForm;
   if (preferencesForm) delete preferencesForm;
   if (documentationForm) delete documentationForm;
   if (aboutForm) delete aboutForm;
-  if (flickableTabBar) delete flickableTabBar;
   if (dbus) delete dbus;
+  if (nativeFlickableTabBar) delete nativeFlickableTabBar;
+  if (torFlickableTabBar) delete torFlickableTabBar;
 
   delete ui;
 }
@@ -223,14 +275,14 @@ void MainWindow::retrieveNewsfeeds(
 
     tags.clear();
 
-    flickableTabBar->addItem(cwi);
+    nativeFlickableTabBar->addItem(cwi);
 
     ++index;
   }
 
   settings.endArray();
 
-  flickableTabBar->setCurrentRow(0);
+  nativeFlickableTabBar->setCurrentRow(0);
 
   size = settings.beginReadArray("newsfeeds");
 
@@ -271,7 +323,7 @@ void MainWindow::retrieveNewsfeeds(
 
     tags.clear();
 
-    ui->mediaListWidget->addItem(nwi);
+    ui->nativeMediaList->addItem(nwi);
 
     // Safe to do this here, because all collections already defined:
     filterItem(nwi);
@@ -316,9 +368,9 @@ void MainWindow::parseLinguineElement(
   QXmlStreamReader &reader)
 {
   // Remove all collections from the tab bar:
-  flickableTabBar->clear();
+  nativeFlickableTabBar->clear();
   // Remove all newsfeeds from the current list:
-  ui->mediaListWidget->clear();
+  ui->nativeMediaList->clear();
 
   QString name;
   QString url;
@@ -369,7 +421,7 @@ void MainWindow::parseLinguineElement(
             getActiveTextColor(),
             &qnam);
 
-        ui->mediaListWidget->addItem(nwi);
+        ui->nativeMediaList->addItem(nwi);
 
         nwi->setHidden(true);
 
@@ -405,7 +457,7 @@ void MainWindow::parseLinguineElement(
             language,
             tags);
 
-        flickableTabBar->addItem(cwi);
+        nativeFlickableTabBar->addItem(cwi);
 
         // Reset all the fields:
         name.clear();
@@ -416,9 +468,6 @@ void MainWindow::parseLinguineElement(
       }
     }
   }
-
-  // Start the flickable tab bar at the beginning:
-//  flickableTabBar->setIndex(0);
 
   // Update the settings:
   QSettings settings("pietrzak.org", "Linguine");
@@ -431,11 +480,12 @@ void MainWindow::parseLinguineElement(
   settings.beginWriteArray("categories");
 
   int index = 0;
-  int count = flickableTabBar->count();
+  int count = nativeFlickableTabBar->count();
   while (index < count)
   {
     LinCollectionWidgetItem *cwi =
-      dynamic_cast<LinCollectionWidgetItem *>(flickableTabBar->item(index));
+      dynamic_cast<LinCollectionWidgetItem *>(
+        nativeFlickableTabBar->item(index));
 
     settings.setArrayIndex(index);
     cwi->addToSettings(settings);
@@ -449,11 +499,11 @@ void MainWindow::parseLinguineElement(
   settings.beginWriteArray("newsfeeds");
 
   index = 0;
-  count = ui->mediaListWidget->count();
+  count = ui->nativeMediaList->count();
   while (index < count)
   {
     LinNewsfeedWidgetItem *nwi =
-      dynamic_cast<LinNewsfeedWidgetItem *>(ui->mediaListWidget->item(index));
+      dynamic_cast<LinNewsfeedWidgetItem *>(ui->nativeMediaList->item(index));
 
     settings.setArrayIndex(index);
     nwi->addToSettings(settings);
@@ -464,7 +514,7 @@ void MainWindow::parseLinguineElement(
   settings.endArray();
 
   // If at this point we have no collections, create one:
-  if (flickableTabBar->count() == 0)
+  if (nativeFlickableTabBar->count() == 0)
   {
     tags.clear(); // This should be unnecessary
 
@@ -476,13 +526,13 @@ void MainWindow::parseLinguineElement(
         Any_Language,
         tags);
 
-    flickableTabBar->addItem(everything);
+    nativeFlickableTabBar->addItem(everything);
   }
 
-  flickableTabBar->setCurrentRow(0);
+  nativeFlickableTabBar->setCurrentRow(0);
 
   refilter(
-    flickableTabBar->currentItem());
+    nativeFlickableTabBar->currentItem());
 }
 
 
@@ -578,7 +628,7 @@ QString MainWindow::parseText(
 void MainWindow::filterItem(
   LinNewsfeedWidgetItem *nwi)
 {
-  if (flickableTabBar->matchesCurrentCollection(nwi))
+  if (nativeFlickableTabBar->matchesCurrentCollection(nwi))
   {
     nwi->setHidden(false);
     nwi->parseRSS();
@@ -588,9 +638,49 @@ void MainWindow::filterItem(
     nwi->setHidden(true);
   }
 }
+
+
+void MainWindow::on_sourcesListWidget_itemActivated(QListWidgetItem *item)
+{
+  LinFeedSource *fs = dynamic_cast<LinFeedSource *>(item);
+
+  switch (fs->getType())
+  {
+  case TheOldReader_Source:
+    setupTORUI();
+
+    torAuthenticationDialog->hideLabel();
+
+    if (torAuthenticationDialog->exec() == QDialog::Rejected)
+    {
+      // User canceled logging in to TOR, so get out:
+      break;
+    }
+
+    torManager->authenticate(
+      torAuthenticationDialog->getEmail(),
+      torAuthenticationDialog->getPasswd());
+
+    ui->mainStackedWidget->setCurrentWidget(ui->torFeedPage);
+    break;
+
+//  case Facebook_Source:
+//    break;
+
+  case Native_Source:
+  default:
+    if (!nativeAlreadySetup)
+    {
+      setupNativeUI();
+    }
+
+    ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
+    break;
+  }
+}
   
 
-void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
+void MainWindow::on_nativeMediaList_itemActivated(QListWidgetItem *item)
 {
   if (!item) return;
 
@@ -608,8 +698,13 @@ void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
     }
     else
     {
-      // Make sure the other form isn't playing:
-      videoDisplayForm->stopPlaying();
+      // Make sure the video form isn't running:
+//      videoDisplayForm->stopPlaying();
+
+      if (!nowPlayingForm)
+      {
+        nowPlayingForm = new LinNowPlayingForm(this);
+      }
 
       nowPlayingForm->setProgram(
         nwi->getName(),
@@ -630,8 +725,12 @@ void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
     }
     else
     {
-      // Make sure the other form isn't playing:
-      nowPlayingForm->stopPlaying();
+      // Make sure the audio form isn't playing:
+//      nowPlayingForm->stopPlaying();
+      if (!videoDisplayForm)
+      {
+        videoDisplayForm = new LinVideoDisplayForm(this);
+      }
 
       videoDisplayForm->setProgram(
         nwi->getName(),
@@ -650,13 +749,14 @@ void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
   }
   else if (media == Text_Media)
   {
-    htmlDisplayForm->displayText(
+    nativeDisplayForm->displayText(
       nwi->getName(),
       nwi->getSourceUrl(),
       nwi->getFaviconUrl(),
+      preferencesForm->hideImages(),
       preferencesForm->openExternalBrowser());
 
-    htmlDisplayForm->show();
+    nativeDisplayForm->show();
   }
 /*
   else if (media == Image_Media)
@@ -670,9 +770,23 @@ void MainWindow::on_mediaListWidget_itemActivated(QListWidgetItem *item)
 }
 
 
-void MainWindow::on_actionManage_Categories_triggered()
+void MainWindow::on_torTreeWidget_itemActivated(
+  QTreeWidgetItem *item, int column)
 {
-  // Need to fill this in
+  torDisplayForm->setupTORDisplay(
+    item->text(0),
+    preferencesForm->openExternalPlayer(),
+    preferencesForm->openExternalBrowser());
+
+  torManager->retrieveTORItems(item);
+
+  torDisplayForm->show();
+}
+
+
+void MainWindow::on_actionSelect_New_Source_triggered()
+{
+  ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
 }
 
 
@@ -762,28 +876,20 @@ void MainWindow::refilter(
   }
 */
 
-  int count = ui->mediaListWidget->count();
+  int count = ui->nativeMediaList->count();
 
   int index = 0;
 
   while (index < count)
   {
     LinNewsfeedWidgetItem *nwi = 
-      dynamic_cast<LinNewsfeedWidgetItem *>(ui->mediaListWidget->item(index));
+      dynamic_cast<LinNewsfeedWidgetItem *>(ui->nativeMediaList->item(index));
 
     filterItem(nwi);
 
     ++index;
   }
 }
-
-
-/*
-void MainWindow::on_filterButton_clicked()
-{
-  filterDialog->exec();
-}
-*/
 
 
 FrequencyType MainWindow::parseFrequency(
@@ -845,4 +951,91 @@ MediaType MainWindow::parseMedia(
 
   // This is definitely a hack:
   return Text_Media;
+}
+
+
+void MainWindow::setupFeedSources()
+{
+  ui->sourcesListWidget->addItem(
+    new LinNativeFeedSource());
+
+  ui->sourcesListWidget->addItem(
+    new LinTORFeedSource());
+
+//  ui->sourcesListWidget->addItem(
+//    new LinFacebookFeedSource());
+}
+
+
+void MainWindow::setupNativeUI()
+{
+  nativeFlickableTabBar = new LinFlickableTabBar(this);
+  ui->nativeLayout->insertWidget(0, nativeFlickableTabBar);
+
+  connect(
+    nativeFlickableTabBar,
+    SIGNAL(itemActivated(QListWidgetItem *)),
+    this,
+    SLOT(refilter(QListWidgetItem *)));
+
+  QSettings settings("pietrzak.org", "Linguine");
+
+  retrieveNewsfeeds(settings);
+
+  nativeAlreadySetup = true;
+}
+
+
+void MainWindow::setupTORUI()
+{
+  if (torAlreadySetup)
+  {
+    return;
+  }
+
+  torManager = new LinTORManager(
+    &qnam,
+    ui->torTreeWidget);
+
+  torDisplayForm = new LinTORDisplayForm(this, &qnam);
+
+  torAuthenticationDialog = new LinAuthenticationDialog();
+
+  connect(
+    torManager,
+    SIGNAL(loginFailed()),
+    this,
+    SLOT(retryTORLogin()));
+
+  connect(
+    torManager,
+    SIGNAL(itemsReady()),
+    this,
+    SLOT(displayTORItems()));
+
+  torAlreadySetup = true;
+}
+
+
+void MainWindow::displayTORItems()
+{
+  torDisplayForm->displayItems(
+    torManager->getTORItemCollection());
+}
+
+
+void MainWindow::retryTORLogin()
+{
+  torAuthenticationDialog->showLabel();
+
+  if (torAuthenticationDialog->exec() == QDialog::Rejected)
+  {
+    // User canceled logging in to TOR, so get out:
+    ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+    return;
+  }
+
+  torManager->authenticate(
+    torAuthenticationDialog->getEmail(),
+    torAuthenticationDialog->getPasswd());
 }

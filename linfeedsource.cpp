@@ -1,5 +1,5 @@
 //
-// linphonodisplayform.h
+// linfeedsource.cpp
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,48 +20,45 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINPHONONDISPLAYFORM_H
-#define LINPHONONDISPLAYFORM_H
+#include "linfeedsource.h"
 
-#include <QWidget>
-
-class LinFullScreenButton;
-
-namespace Ui {
-class LinPhononDisplayForm;
+LinFeedSource::LinFeedSource(
+  SourceType t)
+  : type(t)
+{
 }
 
-class LinPhononDisplayForm : public QWidget
+
+/////////////////////////////////////////
+
+
+LinNativeFeedSource::LinNativeFeedSource()
+  : LinFeedSource(Native_Source)
 {
-  Q_OBJECT
-  
-public:
-  explicit LinPhononDisplayForm(QWidget *parent = 0);
-  ~LinPhononDisplayForm();
+  setText("Native Linguine Newsfeeds");
+  setIcon(QIcon(":/icons/linguine64.png"));
+}
 
-public slots:
-  void setProgram(
-    QString title,
-    QString mediaUrl);
 
-  void pausePlaying();
+/////////////////////////////////////////
 
-  void stopPlaying();
 
-  void enterFullscreen();
-  void returnFromFullscreen();
+LinTORFeedSource::LinTORFeedSource()
+  : LinFeedSource(TheOldReader_Source)
+{
+  setText("The Old Reader");
+  setIcon(QIcon(":/icons/tor_logo_icon_large.png"));
+}
 
-private slots:
-  void on_playPauseButton_clicked();
-  void on_stopButton_clicked();
-  void on_fullscreenButton_clicked();
-  
-private:
-  Ui::LinPhononDisplayForm *ui;
+/////////////////////////////////////////
 
-  LinFullScreenButton *fullScreenButton;
 
-  bool paused;
-};
+/*
+LinFacebookFeedSource::LinFacebookFeedSource()
+  : LinFeedSource(Facebook_Source)
+{
+  setText("Facebook");
+  setIcon(QIcon(":/icons/facebook.jpeg"));
+}
+*/
 
-#endif // LINPHONONDISPLAYFORM_H

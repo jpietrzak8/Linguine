@@ -14,24 +14,104 @@
    <string>Linguine</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="centralVerticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="margin">
      <number>8</number>
     </property>
     <item>
-     <widget class="QListWidget" name="mediaListWidget">
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
+     <widget class="QStackedWidget" name="mainStackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="viewMode">
-       <enum>QListView::ListMode</enum>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
-      </property>
-      <property name="sortingEnabled">
-       <bool>true</bool>
-      </property>
+      <widget class="QWidget" name="feedSelectorPage">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="chooseFeedLabel">
+          <property name="text">
+           <string>Choose Newsfeed Source:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QListWidget" name="sourcesListWidget">
+          <property name="iconSize">
+           <size>
+            <width>64</width>
+            <height>64</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="nativeFeedPage">
+       <layout class="QVBoxLayout" name="nativeLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QListWidget" name="nativeMediaList">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="viewMode">
+           <enum>QListView::ListMode</enum>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="torFeedPage">
+       <layout class="QVBoxLayout" name="torLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QTreeWidget" name="torTreeWidget">
+          <attribute name="headerVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="facebookFeedPage">
+       <layout class="QVBoxLayout" name="facebookLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QListWidget" name="facebookMediaList">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="viewMode">
+           <enum>QListView::ListMode</enum>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -49,6 +129,7 @@
     <property name="title">
      <string>Linguine</string>
     </property>
+    <addaction name="actionSelect_New_Source"/>
     <addaction name="actionLoad_Newsfeeds_File"/>
     <addaction name="actionReset_Newsfeeds"/>
     <addaction name="actionPreferences"/>
@@ -77,14 +158,14 @@
     <string>Reset Newsfeeds</string>
    </property>
   </action>
-  <action name="actionManage_Categories">
-   <property name="text">
-    <string>Manage Categories</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="text">
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="actionSelect_New_Source">
+   <property name="text">
+    <string>Select New Source</string>
    </property>
   </action>
  </widget>

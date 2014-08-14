@@ -461,4 +461,30 @@
  <tag>science</tag>
 </newsfeed>
 
+<newsfeed
+ url="http://bfbsradiositrep.libsyn.com/rss"
+ frequency="weekly"
+ media="audio">
+ <name>BFBS Radio Sitrep</name>
+ <tag>news</tag>
+ <tag>military</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://serve.cbsradionewsfeed.com/rss.php?id=90&amp;ud=512"
+ frequency="weekly"
+ media="audio">
+ <name>60 Minutes - Full Audio</name>
+ <tag>news</tag>
+ <tag>politics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://feeds.cbsnews.com/podcast_nation_1?format=xml"
+ frequency="weekly"
+ media="audio">
+ <name>Face the Nation</name>
+ <tag>politics</tag>
+</newsfeed>
+
 </linguine>

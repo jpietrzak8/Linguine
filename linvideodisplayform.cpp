@@ -28,7 +28,6 @@
 //#include <QNetworkRequest>
 //#include <QNetworkReply>
 #include <gst/interfaces/xoverlay.h>
-#include "mainwindow.h"
 #include "lingstdatadialog.h"
 #include <QMaemo5InformationBox>
 
@@ -207,8 +206,8 @@ qDebug() << errString;
 // Now, on to the actual methods:
 
 LinVideoDisplayForm::LinVideoDisplayForm(
-  MainWindow *mw)
-  : QWidget(mw),
+  QWidget *parent)
+  : QWidget(parent),
     ui(new Ui::LinVideoDisplayForm),
 //    fullScreenButton(0),
 //    videoWidget(0),
@@ -218,8 +217,7 @@ LinVideoDisplayForm::LinVideoDisplayForm(
     paused(true),
     waitingForBuffer(false),
     checkedSeeking(false),
-    dataDialog(0),
-    mainWindow(mw)
+    dataDialog(0)
 {
   ui->setupUi(this);
 
