@@ -178,7 +178,6 @@ void LinTORManager::setupFolders()
 
   torTreeWidget->addTopLevelItem(allSubsItem);
 
-  // Now that the flickable tab bar exists, grab the subscriptions:
   getSubscriptions();
 }
 
@@ -318,6 +317,91 @@ void LinTORManager::setupSubscriptions()
       ++index;
     }
   }
+
+  // Now, query for unread numbers:
+  getUnread();
+}
+
+
+void LinTORManager::getUnread()
+{
+  if (unreadReply)
+  {
+    // Already making a unread request.
+    return;
+  }
+
+  if (!unreadRequest)
+  {
+    // Construct the request:
+    unreadRequest = new QNetworkRequest(QUrl(
+      "https://theoldreader.com/reader/api/0/unread-count?output=json"));
+
+    unreadRequest->setRawHeader(
+      "Authorization", authHeaderString.toAscii());
+  }
+
+  unreadReply = qnam->get(*unreadRequest);
+
+  connect(
+    unreadReply,
+    SIGNAL(finished()),
+    this,
+    SLOT(setupUnread()));
+}
+
+
+void LinTORManager::setupUnread()
+{
+  QJson::Parser parser;
+  bool ok;
+  QVariantMap result = parser.parse(unreadReply->readAll(), &ok).toMap();
+  unreadReply->deleteLater();
+  unreadReply = 0;
+
+  if (!ok)
+  {
+    qWarning() << "Failed to parse The Old Reader unread data";
+    return;
+  }
+
+  QList<QVariant> unreadVariants = result["unreadcounts"].toList();
+
+  if (!unreadVariants.isEmpty())
+  {
+    QList<QVariant>::const_iterator index = unreadVariants.constBegin();
+    QList<QVariant>::const_iterator end = unreadVariants.constEnd();
+    QMap<QString, QVariant> singleUnreadMap;
+    QList<QTreeWidgetItem *> matchingFolders;
+    LinTORFolderItem *folderItem;
+
+    while (index != end)
+    {
+      singleUnreadMap = (*index).toMap();
+      matchingFolders = torTreeWidget->findItems(
+        singleUnreadMap["id"].toString(),
+        Qt::MatchExactly);
+
+      if (!matchingFolders.isEmpty())
+      {
+        QList<QTreeWidgetItem *>::const_iterator matchIndex =
+          matchingFolders.constBegin();
+        QList<QTreeWidgetItem *>::const_iterator matchEnd = 
+          matchingFolders.constEnd();
+        while (matchIndex != matchEnd)
+        {
+          folderItem = dynamic_cast<LinTORFolderItem *>(*matchIndex);
+          if (folderItem)
+          {
+            folderItem->setUnreadCount(singleUnreadMap["count"].toInt());
+          }
+          ++matchIndex;
+        }
+      }
+
+      ++index;
+    }
+  }
 }
 
 
@@ -353,8 +437,12 @@ void LinTORManager::retrieveTORItems(
   }
 
   QString itemIDsRequestString =
-    "https://theoldreader.com/reader/api/0/stream/items/ids?output=json&n=20&s=";
+    "https://theoldreader.com/reader/api/0/stream/items/ids?output=json";
 
+  // Need to determine how many items to pull over maximum:
+  itemIDsRequestString += "&n=500";
+
+  itemIDsRequestString += "&s=";
   itemIDsRequestString += collectionID;
 
   QUrl qurl(itemIDsRequestString);
@@ -527,4 +615,21 @@ void LinTORManager::clearFolders()
   }
 
   folderItems.clear();
+}
+
+
+void LinTORManager::markAsRead(
+  QString id)
+{
+  QUrl marUrl("https://theoldreader.com/reader/api/0/edit-tag");
+  QNetworkRequest marRequest(marUrl);
+  marRequest.setRawHeader("Authorization", authHeaderString.toAscii());
+
+  QString marPost = "i=";
+  marPost += id;
+  marPost += "&a=user/-/state/com.google/read";
+
+  qnam->post(marRequest, marPost.toUtf8());
+
+  // Do I need to check the reply?
 }

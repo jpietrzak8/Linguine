@@ -46,8 +46,8 @@ public:
 private slots:
   void on_playerCheckBox_toggled(bool checked);
   void on_browserCheckBox_toggled(bool checked);
-
   void on_imagesCheckBox_toggled(bool checked);
+  void on_nativeSortComboBox_currentIndexChanged(const QString &arg1);
 
 private:
   Ui::LinPreferencesForm *ui;

@@ -33,6 +33,7 @@
 #include <QDebug>
 
 #define ITUNES_NS "http://www.itunes.com/dtds/podcast-1.0.dtd"
+#define RDF_NS "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 
 LinRSSParser::LinRSSParser(
   LinNewsfeedWidgetItem *item,
@@ -68,7 +69,6 @@ void LinRSSParser::startParsing()
 
 void LinRSSParser::parseRSSFeed()
 {
-//qDebug() << "parsing reply";
   QXmlStreamReader newsReader(reply);
 
   while (!newsReader.atEnd())
@@ -79,11 +79,13 @@ void LinRSSParser::parseRSSFeed()
     {
       if (newsReader.name() == "channel")
       {
-//qDebug() << "found channel";
         parseRSSChannel(newsReader);
       }
     }
   }
+
+  // No longer need the current reply:
+  reply->deleteLater();
 
   if (newsReader.hasError())
   {
@@ -93,21 +95,25 @@ void LinRSSParser::parseRSSFeed()
     err.append("\nFor URL: ");
     err.append(sourceUrl);
     QMaemo5InformationBox::information(0, err, 0);
-    qDebug() << err;
+    qWarning() << err;
     return;
   }
 
-  // No longer need the current reply:
-  reply->deleteLater();
-
-  // reset the item description:
-  nwi->resetTitle();
-
   nwi->setFaviconUrl(imageUrl);
+
+  // At this point, assume item has been updated:
+  emit itemUpdated();
 
   // Retrieve the image:
   if (imageLoader) delete imageLoader; // work on this
   imageLoader = new LinImageLoader(nwi, imageUrl, qnam);
+
+  // Make sure that a signal is sent if the image is updated:
+  connect(
+    imageLoader,
+    SIGNAL(imageUpdated()),
+    this,
+    SIGNAL(itemUpdated()));
 }
 
 
@@ -125,7 +131,6 @@ void LinRSSParser::parseRSSChannel(
     {
       if (newsReader.name() == "title")
       {
-//qDebug() << "found title";
         channelTitle = parseRSSText("title", newsReader);
       }
       else if (!imageAlreadySeen && newsReader.name() == "image")
@@ -136,14 +141,22 @@ void LinRSSParser::parseRSSChannel(
           if (newsReader.attributes().hasAttribute("href"))
           {
             imageUrl = newsReader.attributes().value("href").toString();
+            imageAlreadySeen = true;
+          }
+        }
+        else if (QString::compare(
+             newsReader.namespaceUri().toString(), RDF_NS, Qt::CaseInsensitive) == 0)
+        {
+          if (newsReader.attributes().hasAttribute("resource"))
+          {
+            imageUrl = newsReader.attributes().value("resource").toString();
+            imageAlreadySeen = true;
           }
         }
         else
         {
           parseRSSImage(newsReader);
         }
-
-        imageAlreadySeen = true;
       }
       else if (newsReader.name() == "item")
       {
@@ -183,6 +196,7 @@ void LinRSSParser::parseRSSImage(
       if (newsReader.name() == "url")
       {
         imageUrl = parseRSSText("url", newsReader);
+        imageAlreadySeen = true;
       }
     }
     else if (newsReader.isEndElement())
@@ -226,14 +240,13 @@ void LinRSSParser::parseRSSItem(
           if (newsReader.attributes().hasAttribute("href"))
           {
             imageUrl = newsReader.attributes().value("href").toString();
+            imageAlreadySeen = true;
           }
         }
         else
         {
           parseRSSImage(newsReader);
         }
-
-        imageAlreadySeen = true;
       }
       else if (newsReader.name() == "enclosure")
       {
@@ -297,7 +310,7 @@ QString LinRSSParser::parseRSSText(
     {
       if (newsReader.name() == elementName)
       {
-        return textString;
+        break;
       }
     }
   }

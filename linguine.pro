@@ -47,7 +47,14 @@ SOURCES += main.cpp mainwindow.cpp \
     linimageloader.cpp \
     linnativedisplayform.cpp \
     lintordisplayform.cpp \
-    linauthenticationdialog.cpp
+    linauthenticationdialog.cpp \
+    linnativedelegate.cpp \
+    linfeedselectordialog.cpp \
+    linatomparser.cpp \
+    linfeedmanagerform.cpp \
+    linwidgetuiform.cpp \
+    linwidgetsettingsdialog.cpp \
+    qmaemo5homescreenadaptor.cpp
 HEADERS += mainwindow.h \
     linnowplayingform.h \
     linnewsfeedwidgetitem.h \
@@ -73,7 +80,14 @@ HEADERS += mainwindow.h \
     linimageloader.h \
     linnativedisplayform.h \
     lintordisplayform.h \
-    linauthenticationdialog.h
+    linauthenticationdialog.h \
+    linnativedelegate.h \
+    linfeedselectordialog.h \
+    linatomparser.h \
+    linfeedmanagerform.h \
+    linwidgetuiform.h \
+    linwidgetsettingsdialog.h \
+    qmaemo5homescreenadaptor.h
 FORMS += mainwindow.ui \
     linnowplayingform.ui \
     linvideodisplayform.ui \
@@ -85,7 +99,11 @@ FORMS += mainwindow.ui \
     linhtmldisplayform.ui \
     linpreferencesform.ui \
     lincollectiondialog.ui \
-    linauthenticationdialog.ui
+    linauthenticationdialog.ui \
+    linfeedselectordialog.ui \
+    linfeedmanagerform.ui \
+    linwidgetuiform.ui \
+    linwidgetsettingsdialog.ui
 
 # Please do not modify the following two lines. Required for deployment.
 include(deployment.pri)
@@ -119,3 +137,9 @@ unix {
 
 RESOURCES += \
     linresource.qrc
+
+# Extra files needed to create a homescreen widget:
+desktop.path = /usr/share/applications/hildon-home
+desktop.files = linguinewidget.desktop
+
+INSTALLS += desktop

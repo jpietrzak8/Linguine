@@ -31,7 +31,10 @@
 
 class QSettings;
 class LinRSSParser;
+class LinAtomParser;
 class QNetworkAccessManager;
+
+typedef QSet<QString> TagCollection;
 
 
 class LinNewsfeedWidgetItem: public QListWidgetItem
@@ -43,13 +46,14 @@ public:
     FrequencyType freq,
     MediaType media,
     LanguageType language,
-    const QSet<QString> &tags,
+    LinFormatType format,
+    const TagCollection &tags,
     QString activeTextColor,
     QNetworkAccessManager *qnam);
 
   ~LinNewsfeedWidgetItem();
 
-  void parseRSS();
+  void parseFeed();
 
   void setItemSummary(
     QString itemSummary);
@@ -60,10 +64,8 @@ public:
   void setFaviconUrl(
     QString faviconUrl);
 
-/*
   void setImage(
     const QByteArray &ba);
-*/
 
   void setItemTitle(
     QString itemTitle);
@@ -90,6 +92,9 @@ public:
     LanguageType l)
     {language = l;}
 
+  void setAtomFormat()
+    {feedFormat = Atom_Format;}
+
   void insertTag(
     QString tag)
     {tags.insert(tag);}
@@ -97,8 +102,10 @@ public:
   FrequencyType getFrequency() const {return frequency;}
   MediaType getMedia() const {return media;}
   LanguageType getLanguage() const {return language;}
+  LinFormatType getFormat() const {return feedFormat;}
   QString getSourceUrl() const {return sourceUrl;}
   QString getName() const { return name; }
+  QNetworkAccessManager *getQnam() { return qnam; }
 
 /*
   QSet<QString>::const_iterator tagsBegin()
@@ -112,13 +119,14 @@ public:
     QString tag)
     { return tags.contains(tag); }
 
-  void resetTitle();
-
   // For sorting purposes:
-//  virtual bool operator<(const QListWidgetItem &other) const;
+  virtual bool operator<(const QListWidgetItem &other) const;
 
   void addToSettings(
     QSettings &settings);
+
+  // Class Static:
+  static LinNewsfeedSortType sortType;
 
 private:
   bool alreadyParsed;
@@ -127,7 +135,8 @@ private:
   FrequencyType frequency;
   MediaType media;
   LanguageType language;
-  QSet<QString> tags;
+  LinFormatType feedFormat;
+  TagCollection tags;
 
   QString itemSummary;
   QString itemPubDate;
@@ -136,9 +145,11 @@ private:
   QString itemTitle;
   QString mediaUrl;
   QString activeTextColor;
+
   QNetworkAccessManager *qnam;
 
-  LinRSSParser *parser;
+  LinRSSParser *rssParser;
+  LinAtomParser *atomParser;
 };
 
 #endif // LINNEWSFEEDWIDGETITEM_H

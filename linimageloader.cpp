@@ -4,18 +4,18 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QUrl>
-#include <QListWidgetItem>
 #include <QTreeWidgetItem>
 #include <QString>
 #include <QByteArray>
+#include "linnewsfeedwidgetitem.h"
 
 #include <QDebug>
 
 LinImageLoader::LinImageLoader(
-  QListWidgetItem *i,
+  LinNewsfeedWidgetItem *nwi,
   QString imageUrl,
   QNetworkAccessManager *q)
-  : listItem(i),
+  : newsfeedItem(nwi),
     treeItem(0),
     qnam(q),
     reply(0)
@@ -34,7 +34,7 @@ LinImageLoader::LinImageLoader(
   QTreeWidgetItem *t,
   QString imageUrl,
   QNetworkAccessManager *q)
-  : listItem(0),
+  : newsfeedItem(0),
     treeItem(t),
     qnam(q),
     reply(0)
@@ -74,15 +74,15 @@ void LinImageLoader::loadImage()
 
   QByteArray ba = reply->readAll();
 
-  image.loadFromData(ba);
-
-  if (listItem)
+  if (newsfeedItem)
   {
-    listItem->setIcon(QIcon(image));
+    newsfeedItem->setImage(ba);
+    emit imageUpdated();
   }
 
   if (treeItem)
   {
+    image.loadFromData(ba);
     treeItem->setIcon(0, QIcon(image));
   }
 

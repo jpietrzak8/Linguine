@@ -23,10 +23,53 @@
 #include "mainwindow.h"
 
 #include <QtGui/QApplication>
+#include <QWidget>
+#include "qmaemo5homescreenadaptor.h"
+#include "linwidgetuiform.h"
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
+
+  // Are we running as a widget?
+  bool runAsApp = false;
+  QStringList argList = app.arguments();
+  int i = 1;
+  while (i < argList.size())
+  {
+    if ( (argList.at(i) == "-a")
+      || (argList.at(i) == "--runAsApp"))
+    {
+      runAsApp = true;
+      break;
+    }
+
+    ++i;
+  }
+
+  if (!runAsApp)
+  {
+    // We are running as a widget:
+    LinWidgetUIForm widget;
+
+    QMaemo5HomescreenAdaptor *adaptor =
+      new QMaemo5HomescreenAdaptor(&widget);
+
+    adaptor->setSettingsAvailable(true);
+
+    QObject::connect(
+      adaptor,
+      SIGNAL(settingsRequested()),
+      &widget,
+      SLOT(showSettingsDialog()));
+
+    widget.show();
+
+    return app.exec();
+  }
+
+  // Otherwise, we are running as a normal app:
 
   app.setApplicationName("Linguine");
 

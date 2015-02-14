@@ -23,6 +23,8 @@
 #include "linpreferencesform.h"
 #include "ui_linpreferencesform.h"
 
+#include "linnewsfeedwidgetitem.h"
+
 #include <QSettings>
 
 LinPreferencesForm::LinPreferencesForm(QWidget *parent) :
@@ -35,6 +37,9 @@ LinPreferencesForm::LinPreferencesForm(QWidget *parent) :
 
   setAttribute(Qt::WA_Maemo5StackedWindow);
   setWindowFlags(windowFlags() | Qt::Window);
+
+  // For now, leave the native prefs out:
+  ui->nativePrefsFrame->hide();
 
   QSettings settings("pietrzak.org", "Linguine");
 
@@ -55,6 +60,23 @@ LinPreferencesForm::LinPreferencesForm(QWidget *parent) :
     hideImagesFlag = settings.value("HideImages").toBool();
     ui->imagesCheckBox->setChecked(hideImagesFlag);
   }
+
+  if (settings.contains("NativeSortType"))
+  {
+    QString sortTypeStr = settings.value("NativeSortType").toString();
+
+    ui->nativeSortComboBox->setCurrentIndex(
+      ui->nativeSortComboBox->findText(sortTypeStr));
+
+    if (sortTypeStr == "Name")
+    {
+      LinNewsfeedWidgetItem::sortType = Name_Sort;
+    }
+    else if (sortTypeStr == "Timestamp")
+    {
+      LinNewsfeedWidgetItem::sortType = Timestamp_Sort;
+    }
+  }
 }
 
 
@@ -65,6 +87,7 @@ LinPreferencesForm::~LinPreferencesForm()
   settings.setValue("OpenExternalPlayer", openExternalPlayerFlag);
   settings.setValue("OpenExternalBrowser", openExternalBrowserFlag);
   settings.setValue("HideImages", hideImagesFlag);
+  settings.setValue("NativeSortType", ui->nativeSortComboBox->currentText());
 
   delete ui;
 }
@@ -84,4 +107,17 @@ void LinPreferencesForm::on_browserCheckBox_toggled(bool checked)
 void LinPreferencesForm::on_imagesCheckBox_toggled(bool checked)
 {
   hideImagesFlag = checked;
+}
+
+void LinPreferencesForm::on_nativeSortComboBox_currentIndexChanged(
+  const QString &arg1)
+{
+  if (arg1 == "Name")
+  {
+    LinNewsfeedWidgetItem::sortType = Name_Sort;
+  }
+  else if (arg1 == "Timestamp")
+  {
+    LinNewsfeedWidgetItem::sortType = Timestamp_Sort;
+  }
 }

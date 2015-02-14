@@ -30,6 +30,7 @@
 #include "lintoritems.h"
 #include "lintormanager.h"
 #include "lindbus.h"
+#include "linnewsfeedwidgetitem.h"
 
 class LinFlickableTabBar;
 class LinNowPlayingForm;
@@ -39,13 +40,14 @@ class LinNativeDisplayForm;
 class LinTORDisplayForm;
 class QListWidgetItem;
 class QTreeWidgetItem;
-class LinNewsfeedWidgetItem;
 class QXmlStreamReader;
 class LinPreferencesForm;
 class LinDocumentationForm;
 class LinAboutForm;
 class QSettings;
 class LinAuthenticationDialog;
+class LinNativeDelegate;
+class LinFeedSelectorDialog;
 
 namespace Ui {
   class MainWindow;
@@ -100,11 +102,10 @@ public:
     { dbus->launchMedia(mediaUrl); }
 
 private slots:
-  void on_sourcesListWidget_itemActivated(QListWidgetItem *item);
   void on_nativeMediaList_itemActivated(QListWidgetItem *item);
   void on_torTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
 
-  void on_actionSelect_New_Source_triggered();
+  void on_actionSelect_News_Aggregator_triggered();
   void on_actionLoad_Newsfeeds_File_triggered();
   void on_actionReset_Newsfeeds_triggered();
   void on_actionPreferences_triggered();
@@ -116,6 +117,9 @@ private slots:
   void displayTORItems();
 
   void retryTORLogin();
+
+  void switchToTOR();
+  void switchToNative();
 
 private:
   void retrieveNewsfeeds(
@@ -129,12 +133,12 @@ private:
 
   void parseNewsfeedElement(
     QString &name,
-    QSet<QString> &tags,
+    TagCollection &tags,
     QXmlStreamReader &reader);
 
   void parseCollectionElement(
     QString &name,
-    QSet<QString> &tags,
+    TagCollection &tags,
     QXmlStreamReader &reader);
 
   QString parseText(
@@ -149,6 +153,9 @@ private:
 
   MediaType parseMedia(
     QString mediaStr);
+
+  LinFormatType parseFormat(
+    QString formatStr);
 
   void setupFeedSources();
 
@@ -168,6 +175,8 @@ private:
   LinDocumentationForm *documentationForm;
   LinAboutForm *aboutForm;
   LinDBus *dbus;
+  LinNativeDelegate *nativeDelegate;
+  LinFeedSelectorDialog *aggregatorDialog;
 
   bool nativeAlreadySetup;
   LinFlickableTabBar *nativeFlickableTabBar;

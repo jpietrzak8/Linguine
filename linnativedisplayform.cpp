@@ -52,6 +52,7 @@ void LinNativeDisplayForm::displayText(
   QString feedName,
   QString sUrl,
   QString fUrl,
+  LinFormatType format,
   bool hideImagesFlag,
   bool openExternalBrowser)
 {
@@ -61,11 +62,23 @@ void LinNativeDisplayForm::displayText(
   faviconUrl = fUrl;
   reply = qnam->get(QNetworkRequest(QUrl(sourceUrl)));
 
-  connect(
-    reply,
-    SIGNAL(finished()),
-    this,
-    SLOT(parseRSSFeed()));
+  if (format == Atom_Format)
+  {
+    connect(
+      reply,
+      SIGNAL(finished()),
+      this,
+      SLOT(parseAtomFeed()));
+  }
+  else
+  {
+    // Default to RSS for now:
+    connect(
+      reply,
+      SIGNAL(finished()),
+      this,
+      SLOT(parseRSSFeed()));
+  }
 
   hideImages = hideImagesFlag;
   useExternalBrowser = openExternalBrowser;
@@ -99,7 +112,7 @@ void LinNativeDisplayForm::parseRSSFeed()
     err.append("\nFor URL: ");
     err.append(sourceUrl);
     QMaemo5InformationBox::information(0, err, 0);
-    qDebug() << err;
+    qWarning() << err;
     return;
   }
 
@@ -160,11 +173,11 @@ void LinNativeDisplayForm::parseRSSItem(
     {
       if (textReader.name() == "title")
       {
-        title = parseRSSText("title", textReader);
+        title = parseText("title", textReader);
       }
       else if (textReader.name() == "link")
       {
-        link = parseRSSText("link", textReader);
+        link = parseText("link", textReader);
       }
       else if (textReader.name() == "enclosure")
       {
@@ -232,11 +245,11 @@ void LinNativeDisplayForm::parseRSSItem(
       }
       else if (textReader.name() == "description")
       {
-        description = parseRSSText("description", textReader);
+        description = parseText("description", textReader);
       }
       else if (textReader.name() == "pubDate")
       {
-        pubDate = parseRSSText("pubDate", textReader);
+        pubDate = parseText("pubDate", textReader);
       }
     }
 
@@ -318,7 +331,7 @@ void LinNativeDisplayForm::parseRSSItem(
 }
 
 
-QString LinNativeDisplayForm::parseRSSText(
+QString LinNativeDisplayForm::parseText(
   QString elementName,
   QXmlStreamReader &textReader)
 {
@@ -348,3 +361,158 @@ QString LinNativeDisplayForm::parseRSSText(
   return textString;
 }
 
+
+void LinNativeDisplayForm::parseAtomFeed()
+{
+  QXmlStreamReader textReader(reply);
+  QString htmlOutput = htmlPrefix;
+
+  while (!textReader.atEnd())
+  {
+    textReader.readNext();
+
+    if (textReader.isStartElement())
+    {
+      if (textReader.name() == "entry")
+      {
+        parseAtomEntry(htmlOutput, textReader);
+      }
+    }
+  }
+
+  if (textReader.hasError())
+  {
+    QString err;
+    err.append("QXmlStreamReader returned error: ");
+    err.append(textReader.errorString());
+    err.append("\nFor URL: ");
+    err.append(sourceUrl);
+    QMaemo5InformationBox::information(0, err, 0);
+    qWarning() << err;
+    return;
+  }
+
+  reply->deleteLater();
+
+  htmlOutput += " </body>\n</html>";
+  setHtml(htmlOutput, sourceUrl);
+}
+
+
+void LinNativeDisplayForm::parseAtomEntry(
+  QString &htmlOutput,
+  QXmlStreamReader &textReader)
+{
+  QString title;
+  QString link;
+  QString imageUrl;
+  QString enclosureUrl;
+  QString enclosureType;
+  QString mediaContentType;
+  QString description;
+  QString pubDate;
+  bool mediaContentAlreadySeen = false;
+
+  while (!textReader.atEnd())
+  {
+    textReader.readNext();
+
+    if (textReader.isStartElement())
+    {
+      if (textReader.name() == "title")
+      {
+        title = parseText("title", textReader);
+      }
+      else if (textReader.name() == "link")
+      {
+        if (textReader.attributes().hasAttribute("href"))
+        {
+          link = textReader.attributes().value("href").toString();
+        }
+      }
+      else if (textReader.name() == "summary")
+      {
+        description = parseText("summary", textReader);
+      }
+      else if (textReader.name() == "published")
+      {
+        pubDate = parseText("published", textReader);
+      }
+    }
+
+    else if (textReader.isEndElement())
+    {
+      if (textReader.name() == "entry")
+      {
+        // marshal the entire item into the HTML display:
+        if (!title.isEmpty())
+        {
+          htmlOutput += "<b>";
+
+          if (!link.isEmpty())
+          {
+            htmlOutput += "<a href=\"";
+            htmlOutput += link;
+            htmlOutput += "\">";
+            htmlOutput += title;
+            htmlOutput += "</a>";
+          }
+          else
+          {
+            htmlOutput += title;
+          }
+          htmlOutput += "</b>";
+        }
+
+        htmlOutput += "<p>";
+
+        if (!imageUrl.isEmpty() && !hideImages)
+        {
+          htmlOutput += "<img class=\"main\" src=\"";
+          htmlOutput += imageUrl;
+          htmlOutput += "\"/>\n";
+        }
+
+        if (!enclosureUrl.isEmpty())
+        {
+          htmlOutput += "<a href=\"";
+          htmlOutput += enclosureUrl;
+          htmlOutput += "\"><img src=\"qrc:/icons/blue-play.svg\" width=\"64px\" height=\"64px\"/></a>\n";
+        }
+
+        if (!description.isEmpty())
+        {
+          htmlOutput += description;
+        }
+
+        htmlOutput += "</p>\n";
+
+        if (!faviconUrl.isEmpty())
+        {
+          htmlOutput += "<img class=\"footer\" src=\"";
+          htmlOutput += faviconUrl;
+          htmlOutput += "\"/>";
+          if (pubDate.isEmpty())
+          {
+            htmlOutput += "<br>\n";
+          }
+          else
+          {
+            htmlOutput += " &nbsp; ";
+          }
+        }
+
+        if (!pubDate.isEmpty())
+        {
+          htmlOutput += "<small>";
+          htmlOutput += pubDate;
+          htmlOutput += "</small><br>\n";
+        }
+
+        htmlOutput += "<hr width=\"60%\"/>";
+
+        break;
+      }
+    }
+  }
+}

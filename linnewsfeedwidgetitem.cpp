@@ -24,9 +24,13 @@
 
 #include <QSettings>
 #include "linrssparser.h"
+#include "linatomparser.h"
 
 #include <QDebug>
 
+
+// Initialize the static value:
+LinNewsfeedSortType LinNewsfeedWidgetItem::sortType = Name_Sort;
 
 LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   QString n,
@@ -34,7 +38,8 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
   FrequencyType f,
   MediaType m,
   LanguageType l,
-  const QSet<QString> &t,
+  LinFormatType format,
+  const TagCollection &t,
   QString a,
   QNetworkAccessManager *q)
   : alreadyParsed(false),
@@ -43,28 +48,41 @@ LinNewsfeedWidgetItem::LinNewsfeedWidgetItem(
     frequency(f),
     media(m),
     language(l),
+    feedFormat(format),
     tags(t),
     activeTextColor(a),
     qnam(q),
-    parser(0)
+    rssParser(0),
+    atomParser(0)
 {
-//  parser = new LinRSSParser(this, sourceUrl, qnam);
   setText(name);
+
+  // Set data for use by delegates:
+  setData(Qt::UserRole, name);
 }
 
 
 LinNewsfeedWidgetItem::~LinNewsfeedWidgetItem()
 {
-  if (parser) delete parser;
+  if (atomParser) delete atomParser;
+  if (rssParser) delete rssParser;
 }
 
 
-void LinNewsfeedWidgetItem::parseRSS()
+void LinNewsfeedWidgetItem::parseFeed()
 {
   if (!alreadyParsed)
   {
-    parser = new LinRSSParser(this, sourceUrl, qnam);
-    parser->startParsing();
+    if (feedFormat == RSS_Format)
+    {
+      rssParser = new LinRSSParser(this, sourceUrl, qnam);
+      rssParser->startParsing();
+    }
+    else
+    {
+      atomParser = new LinAtomParser(this, sourceUrl, qnam);
+      atomParser->startParsing();
+    }
     alreadyParsed = true;
   }
 }
@@ -81,6 +99,8 @@ void LinNewsfeedWidgetItem::setItemPubDate(
   QString ipd)
 {
   itemPubDate = ipd;
+
+  setData(Qt::UserRole + 1, itemPubDate);
 }
 
 
@@ -91,21 +111,37 @@ void LinNewsfeedWidgetItem::setFaviconUrl(
 }
 
 
-/*
 void LinNewsfeedWidgetItem::setImage(
   const QByteArray &ba)
 {
   image.loadFromData(ba);
 
+  if (!image.isNull())
+  {
+    setData(
+      Qt::UserRole + 2,
+      image.scaled(96, 96, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+  }
+  else
+  {
+    setData(
+      Qt::UserRole + 2,
+      image);
+  }
+
   setIcon(QIcon(image));
 }
-*/
 
 
 void LinNewsfeedWidgetItem::setItemTitle(
   QString s)
 {
   itemTitle = s;
+
+  if (!itemTitle.isEmpty())
+  {
+    setText(itemTitle);
+  }
 }
 
 
@@ -116,30 +152,6 @@ void LinNewsfeedWidgetItem::setMediaUrl(
 }
 
 
-void LinNewsfeedWidgetItem::resetTitle()
-{
-  // Update the item's on-screen info:
-  if (!itemTitle.isEmpty())
-  {
-/*
-    if (!itemPubDate.isEmpty())
-    {
-      QString tempString = itemTitle;
-      tempString += "\n";
-      tempString += itemPubDate;
-      setText(tempString);
-    }
-    else
-    {
-      setText(itemTitle);
-    }
-*/
-    setText(itemTitle);
-  }
-}
-
-
-/*
 bool LinNewsfeedWidgetItem::operator<(
   const QListWidgetItem &other) const
 {
@@ -152,9 +164,17 @@ bool LinNewsfeedWidgetItem::operator<(
     return QListWidgetItem::operator<(other);
   }
 
-  return (itemPubDate < otherNWI->getItemPubDate());
+  if (sortType == Timestamp_Sort)
+  {
+    // Need a better representation of time here!
+    return (itemPubDate < otherNWI->getItemPubDate());
+  }
+  else
+  {
+    // Default sorting method:
+    return (name < otherNWI->getName());
+  }
 }
-*/
 
 
 void LinNewsfeedWidgetItem::addToSettings(
@@ -168,8 +188,8 @@ void LinNewsfeedWidgetItem::addToSettings(
 
   settings.beginWriteArray("tags");
 
-  QSet<QString>::const_iterator index = tags.constBegin();
-  QSet<QString>::const_iterator end = tags.constEnd();
+  TagCollection::const_iterator index = tags.constBegin();
+  TagCollection::const_iterator end = tags.constEnd();
   int settingsIndex = 0;
 
   while (index != end)

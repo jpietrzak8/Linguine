@@ -45,7 +45,7 @@
 </collection>
 
 <newsfeed
- url="http://www.npr.org/rss/podcast.php?id=500005"
+ url="http://www.npr.org/rss/podlayer.php?id=500005"
  frequency="hourly"
  media="audio">
  <name>NPR Headline News</name>
@@ -133,7 +133,7 @@
 </newsfeed>
 
 <newsfeed
- url="http://www.npr.org/rss/podcast.php?id=510053"
+ url="http://www.npr.org/rss/podlayer.php?id=510053"
  frequency="daily"
  media="audio">
  <name>On Point with Tom Ashbrook</name>
@@ -141,7 +141,7 @@
 </newsfeed>
 
 <newsfeed
- url="http://www.npr.org/rss/podcast.php?id=1056"
+ url="http://www.npr.org/rss/podlayer.php?id=1056"
  frequency="daily"
  media="audio">
  <name>NPR World Story of the Day</name>
@@ -269,7 +269,7 @@
 </newsfeed>
 
 <newsfeed
- url="http://www.npr.org/rss/podcast.php?id=510296"
+ url="http://www.npr.org/rss/podlayer.php?id=510296"
  frequency="weekly"
  media="audio">
  <name>WBUR-FM: On Point with Tom Ashbrook | week in the news Podcast</name>
@@ -485,6 +485,15 @@
  media="audio">
  <name>Face the Nation</name>
  <tag>politics</tag>
+</newsfeed>
+
+<newsfeed
+ url="http://rss.dw-world.de/atom/rss-de-news"
+ frequency="other"
+ media="text"
+ format="atom">
+ <name>Deutsche Welle: DW-.WORLD.DE - Nachrichten</name>
+ <tag>news</tag>
 </newsfeed>
 
 </linguine>

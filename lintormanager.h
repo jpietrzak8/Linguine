@@ -31,6 +31,8 @@ public:
 
   void getSubscriptions();
 
+  void getUnread();
+
   void retrieveTORItems(
     QTreeWidgetItem *treeItem);
 
@@ -47,6 +49,9 @@ public:
     QString email,
     QString passwd);
 
+  void markAsRead(
+    QString id);
+
 signals:
   void loginFailed();
   void itemsReady();
@@ -57,6 +62,7 @@ private slots:
   void setupFolders();
 //  void setupUnread();
   void setupSubscriptions();
+  void setupUnread();
 
   void parseItemIDs();
   void collectItems();
@@ -79,6 +85,9 @@ private:
 
   QNetworkRequest *subscriptionsRequest;
   QNetworkReply *subscriptionsReply;
+
+  QNetworkRequest *unreadRequest;
+  QNetworkReply *unreadReply;
 
   QNetworkReply *itemIDsReply;
 

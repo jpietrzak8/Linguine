@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LinAboutForm</class>
- <widget class="QWidget" name="LinAboutForm">
+ <class>LinWidgetSettingsDialog</class>
+ <widget class="QDialog" name="LinWidgetSettingsDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,20 +11,14 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Select Newsfeed</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="margin">
-    <number>8</number>
+    <number>0</number>
    </property>
    <item>
-    <widget class="QTextBrowser" name="aboutBrowser">
-     <property name="source">
-      <url>
-       <string>qrc:/doc/about.html</string>
-      </url>
-     </property>
-    </widget>
+    <widget class="QListWidget" name="newsfeedListWidget"/>
    </item>
   </layout>
  </widget>

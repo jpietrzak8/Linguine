@@ -34,15 +34,15 @@
 #include "linpreferencesform.h"
 #include "lindocumentationform.h"
 #include "linaboutform.h"
-#include "linnewsfeedwidgetitem.h"
 #include "lincollectionwidgetitem.h"
 #include "linauthenticationdialog.h"
+#include "linfeedselectordialog.h"
 //#include "linfilterdialog.h"
 //#include "lindbus.h"
-#include "linfeedsource.h"
 //#include "lintormanager.h"
 //#include "lintoritems.h"
 #include "linauthenticationdialog.h"
+#include "linnativedelegate.h"
 #include <QXmlStreamReader>
 #include <QFile>
 #include <QString>
@@ -66,6 +66,7 @@ MainWindow::MainWindow(
     documentationForm(0),
     aboutForm(0),
     dbus(0),
+    aggregatorDialog(0),
     nativeAlreadySetup(false),
     nativeFlickableTabBar(0),
     torAlreadySetup(false),
@@ -82,10 +83,24 @@ MainWindow::MainWindow(
   documentationForm = new LinDocumentationForm(this);
   aboutForm = new LinAboutForm(this);
   dbus = new LinDBus();
+  nativeDelegate = new LinNativeDelegate(this);
+  aggregatorDialog = new LinFeedSelectorDialog(this);
 
-  setupFeedSources();
+  connect(
+    aggregatorDialog,
+    SIGNAL(torChosen()),
+    this,
+    SLOT(switchToTOR()));
 
-  ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+  connect(
+    aggregatorDialog,
+    SIGNAL(nativeChosen()),
+    this,
+    SLOT(switchToNative()));
+
+  ui->nativeMediaList->setItemDelegate(nativeDelegate);
+
+  ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
 
   QSettings settings("pietrzak.org", "Linguine");
 
@@ -105,8 +120,8 @@ MainWindow::MainWindow(
 
       if (torAuthenticationDialog->exec() == QDialog::Rejected)
       {
-        // Fall back to source selector:
-        ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+        // Fall back to native page:
+        ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
       }
       else
       {
@@ -125,11 +140,7 @@ MainWindow::~MainWindow()
 {
   QSettings settings("pietrzak.org", "Linguine");
 
-  if (ui->mainStackedWidget->currentWidget() == ui->feedSelectorPage)
-  {
-    settings.setValue("visibleWidget", "FeedSelector");
-  }
-  else if (ui->mainStackedWidget->currentWidget() == ui->nativeFeedPage)
+  if (ui->mainStackedWidget->currentWidget() == ui->nativeFeedPage)
   {
     settings.setValue("visibleWidget", "NativeFeed");
   }
@@ -146,8 +157,11 @@ MainWindow::~MainWindow()
   if (documentationForm) delete documentationForm;
   if (aboutForm) delete aboutForm;
   if (dbus) delete dbus;
+  if (nativeDelegate) delete nativeDelegate;
+  if (aggregatorDialog) delete aggregatorDialog;
   if (nativeFlickableTabBar) delete nativeFlickableTabBar;
   if (torFlickableTabBar) delete torFlickableTabBar;
+  if (torAuthenticationDialog) delete torAuthenticationDialog;
 
   delete ui;
 }
@@ -247,7 +261,8 @@ void MainWindow::retrieveNewsfeeds(
   FrequencyType freq;
   MediaType media;
   LanguageType language;
-  QSet<QString> tags;
+  LinFormatType format;
+  TagCollection tags;
 
   while (index < size)
   {
@@ -297,6 +312,7 @@ void MainWindow::retrieveNewsfeeds(
     freq = (FrequencyType) settings.value("frequency").toInt();
     media = (MediaType) settings.value("media").toInt();
     language = (LanguageType) settings.value("language").toInt();
+    format = (LinFormatType) settings.value("format").toInt();
 
     tagsSize = settings.beginReadArray("tags");
     if (tagsSize)
@@ -317,6 +333,7 @@ void MainWindow::retrieveNewsfeeds(
         freq,
         media,
         language,
+        format,
         tags,
         getActiveTextColor(),
         &qnam);
@@ -374,13 +391,11 @@ void MainWindow::parseLinguineElement(
 
   QString name;
   QString url;
-  QString refreshString;
-  QString catString;
-  QString mediaString;
   FrequencyType freq = Any_Rate;
   MediaType media = Any_Media;
   LanguageType language = Any_Language;
-  QSet<QString> tags;
+  LinFormatType format = RSS_Format;
+  TagCollection tags;
 
   while (!reader.atEnd())
   {
@@ -408,6 +423,12 @@ void MainWindow::parseLinguineElement(
             reader.attributes().value("media").toString());
         }
 
+        if (reader.attributes().hasAttribute("format"))
+        {
+          format = parseFormat(
+            reader.attributes().value("format").toString());
+        }
+
         parseNewsfeedElement(name, tags, reader);
 
         LinNewsfeedWidgetItem *nwi =
@@ -417,6 +438,7 @@ void MainWindow::parseLinguineElement(
             freq,
             media,
             language,
+            format,
             tags,
             getActiveTextColor(),
             &qnam);
@@ -538,7 +560,7 @@ void MainWindow::parseLinguineElement(
 
 void MainWindow::parseNewsfeedElement(
   QString &name,
-  QSet<QString> &tags,
+  TagCollection &tags,
   QXmlStreamReader &reader)
 {
   while (!reader.atEnd())
@@ -569,7 +591,7 @@ void MainWindow::parseNewsfeedElement(
 
 void MainWindow::parseCollectionElement(
   QString &name,
-  QSet<QString> &tags,
+  TagCollection &tags,
   QXmlStreamReader &reader)
 {
   while (!reader.atEnd())
@@ -631,7 +653,7 @@ void MainWindow::filterItem(
   if (nativeFlickableTabBar->matchesCurrentCollection(nwi))
   {
     nwi->setHidden(false);
-    nwi->parseRSS();
+    nwi->parseFeed();
   }
   else
   {
@@ -639,46 +661,6 @@ void MainWindow::filterItem(
   }
 }
 
-
-void MainWindow::on_sourcesListWidget_itemActivated(QListWidgetItem *item)
-{
-  LinFeedSource *fs = dynamic_cast<LinFeedSource *>(item);
-
-  switch (fs->getType())
-  {
-  case TheOldReader_Source:
-    setupTORUI();
-
-    torAuthenticationDialog->hideLabel();
-
-    if (torAuthenticationDialog->exec() == QDialog::Rejected)
-    {
-      // User canceled logging in to TOR, so get out:
-      break;
-    }
-
-    torManager->authenticate(
-      torAuthenticationDialog->getEmail(),
-      torAuthenticationDialog->getPasswd());
-
-    ui->mainStackedWidget->setCurrentWidget(ui->torFeedPage);
-    break;
-
-//  case Facebook_Source:
-//    break;
-
-  case Native_Source:
-  default:
-    if (!nativeAlreadySetup)
-    {
-      setupNativeUI();
-    }
-
-    ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
-    break;
-  }
-}
-  
 
 void MainWindow::on_nativeMediaList_itemActivated(QListWidgetItem *item)
 {
@@ -753,6 +735,7 @@ void MainWindow::on_nativeMediaList_itemActivated(QListWidgetItem *item)
       nwi->getName(),
       nwi->getSourceUrl(),
       nwi->getFaviconUrl(),
+      nwi->getFormat(),
       preferencesForm->hideImages(),
       preferencesForm->openExternalBrowser());
 
@@ -784,9 +767,9 @@ void MainWindow::on_torTreeWidget_itemActivated(
 }
 
 
-void MainWindow::on_actionSelect_New_Source_triggered()
+void MainWindow::on_actionSelect_News_Aggregator_triggered()
 {
-  ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+  aggregatorDialog->exec();
 }
 
 
@@ -954,16 +937,20 @@ MediaType MainWindow::parseMedia(
 }
 
 
-void MainWindow::setupFeedSources()
+LinFormatType MainWindow::parseFormat(
+  QString formatStr)
 {
-  ui->sourcesListWidget->addItem(
-    new LinNativeFeedSource());
+  if (formatStr == "atom")
+  {
+    return Atom_Format;
+  }
+  else if (formatStr == "rss")
+  {
+    return RSS_Format;
+  }
 
-  ui->sourcesListWidget->addItem(
-    new LinTORFeedSource());
-
-//  ui->sourcesListWidget->addItem(
-//    new LinFacebookFeedSource());
+  // For now, default to RSS:
+  return RSS_Format;
 }
 
 
@@ -999,7 +986,10 @@ void MainWindow::setupTORUI()
 
   torDisplayForm = new LinTORDisplayForm(this, &qnam);
 
-  torAuthenticationDialog = new LinAuthenticationDialog();
+  if (!torAuthenticationDialog)
+  {
+    torAuthenticationDialog = new LinAuthenticationDialog();
+  }
 
   connect(
     torManager,
@@ -1031,11 +1021,50 @@ void MainWindow::retryTORLogin()
   if (torAuthenticationDialog->exec() == QDialog::Rejected)
   {
     // User canceled logging in to TOR, so get out:
-    ui->mainStackedWidget->setCurrentWidget(ui->feedSelectorPage);
+    ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
     return;
   }
 
   torManager->authenticate(
     torAuthenticationDialog->getEmail(),
     torAuthenticationDialog->getPasswd());
+}
+
+
+void MainWindow::switchToTOR()
+{
+  if (!torAuthenticationDialog)
+  {
+    torAuthenticationDialog = new LinAuthenticationDialog();
+  }
+
+  torAuthenticationDialog->hideLabel();
+
+  if (torAuthenticationDialog->exec() == QDialog::Rejected)
+  {
+    // User canceled logging in to TOR, so get out:
+    return;
+  }
+
+  if (!torAlreadySetup)
+  {
+    setupTORUI();
+  }
+
+  torManager->authenticate(
+    torAuthenticationDialog->getEmail(),
+    torAuthenticationDialog->getPasswd());
+
+  ui->mainStackedWidget->setCurrentWidget(ui->torFeedPage);
+}
+
+
+void MainWindow::switchToNative()
+{
+  if (!nativeAlreadySetup)
+  {
+    setupNativeUI();
+  }
+
+  ui->mainStackedWidget->setCurrentWidget(ui->nativeFeedPage);
 }

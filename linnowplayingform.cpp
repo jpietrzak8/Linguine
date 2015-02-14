@@ -436,7 +436,8 @@ void LinNowPlayingForm::displayImage()
       currentImage.scaled(
         ui->vImageLabel->height(),
         ui->vImageLabel->width(),
-        Qt::KeepAspectRatio));
+        Qt::KeepAspectRatio,
+        Qt::SmoothTransformation));
   }
   else
   {
@@ -444,7 +445,8 @@ void LinNowPlayingForm::displayImage()
       currentImage.scaled(
         ui->hImageLabel->width(),
         ui->hImageLabel->height(),
-        Qt::KeepAspectRatio));
+        Qt::KeepAspectRatio,
+        Qt::SmoothTransformation));
   }
 }
 

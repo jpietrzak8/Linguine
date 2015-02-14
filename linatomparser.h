@@ -1,5 +1,5 @@
 //
-// linnativedisplayform.h
+// linatomparser.h
 //
 // Copyright 2014 by John Pietrzak (jpietrzak8@gmail.com)
 //
@@ -20,65 +20,60 @@
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //
 
-#ifndef LINNATIVEDISPLAYFORM_H
-#define LINNATIVEDISPLAYFORM_H
+#ifndef LINATOMPARSER_H
+#define LINATOMPARSER_H
 
-#include "linhtmldisplayform.h"
-#include "linfilteritems.h"
-#include <QWidget>
+#include <QObject>
+#include "linnewsfeedwidgetitem.h"
 #include <QString>
 
-class MainWindow;
-class QNetworkAccessManager;
-class QNetworkReply;
 class QXmlStreamReader;
-class QWebViewSelectionSuppressor;
-class QUrl;
+class QNetworkReply;
+class QNetworkAccessManager;
+class LinImageLoader;
 
-class LinNativeDisplayForm : public LinHtmlDisplayForm
+class LinAtomParser: public QObject
 {
   Q_OBJECT
-  
+
 public:
-  LinNativeDisplayForm(
-    MainWindow *mainWindow,
+  LinAtomParser(
+    LinNewsfeedWidgetItem *nwi,
+    QString sourceUrl,
     QNetworkAccessManager *qnam);
 
-  ~LinNativeDisplayForm();
+  ~LinAtomParser();
 
-  void displayText(
-    QString feedName,
-    QString sourceUrl,
-    QString faviconUrl,
-    LinFormatType format,
-    bool hideImagesFlag,
-    bool openExternalBrowser);
+  void startParsing();
+
+signals:
+  void itemUpdated();
 
 private slots:
-  void parseRSSFeed();
-
   void parseAtomFeed();
-  
+
 private:
-  void parseRSSChannel(
-    QXmlStreamReader &textReader);
-
-  void parseRSSItem(
-    QString &htmlOutput,
-    QXmlStreamReader &textReader);
-
-  QString parseText(
-    QString elementName,
-    QXmlStreamReader &textReader);
-
   void parseAtomEntry(
-    QString &htmlOutput,
-    QXmlStreamReader &textReader);
+    QXmlStreamReader &newsReader);
+
+  void skipAtomEntry(
+    QXmlStreamReader &newsReader);
+
+  QString parseAtomText(
+    QString elementName,
+    QXmlStreamReader &newsReader);
+
+  LinImageLoader *imageLoader;
+
+  QString title;
+  QString imageUrl;
 
   QString sourceUrl;
-  QString faviconUrl;
   QNetworkAccessManager *qnam;
   QNetworkReply *reply;
+  LinNewsfeedWidgetItem *nwi;
+
+//  bool imageAlreadySeen;
 };
 
-#endif // LINNATIVEDISPLAYFORM_H
+#endif // LINATOMPARSER_H

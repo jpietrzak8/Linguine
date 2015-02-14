@@ -56,4 +56,18 @@ enum LanguageType
 };
 
 
+enum LinNewsfeedSortType
+{
+  Name_Sort,
+  Timestamp_Sort
+};
+
+
+enum LinFormatType
+{
+  RSS_Format,
+  Atom_Format
+};
+
+
 #endif // LINFILTERITEMS_H

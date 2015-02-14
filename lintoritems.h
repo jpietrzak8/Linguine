@@ -27,6 +27,7 @@
 #include <QString>
 #include <QSet>
 #include <QMap>
+#include <QDateTime>
 
 enum LinTORFolderType
 {
@@ -43,16 +44,34 @@ public:
     QString sortid,
     LinTORFolderType type);
 
-  QString getID()
+  LinTORFolderItem(
+    QString id,
+    QString sortid,
+    QString title);
+
+  LinTORFolderItem(
+    const LinTORFolderItem &other);
+
+  void setUnreadCount(
+    int uc);
+
+  QString getID() const
     { return id; }
 
-  QString getLabel()
-    { return label; }
+  QString getTitle() const
+    { return title; }
+
+  QString getSortid() const
+    { return sortid; }
+
+  int getUnreadCount() const
+    { return unreadCount; }
 
 private:
   QString id;
   QString sortid;
-  QString label;
+  QString title;
+  int unreadCount;
 };
 
 /////////////////////////////////////
@@ -60,21 +79,21 @@ private:
 class QNetworkAccessManager;
 class LinImageLoader;
 
-class LinTORSubscriptionItem: public QTreeWidgetItem
+class LinTORSubscriptionItem: public LinTORFolderItem
 {
 public:
   LinTORSubscriptionItem(
     QString id,
     QString title,
     QString sortid,
-    QString firstitemmsec,
+    QString firstitemusec,
     QString url,
     QString htmlUrl,
     QString iconUrl,
     QNetworkAccessManager *qnam);
 
   LinTORSubscriptionItem(
-    const LinTORSubscriptionItem &item);
+    const LinTORSubscriptionItem &other);
 
   ~LinTORSubscriptionItem();
 
@@ -91,26 +110,26 @@ public:
     QString folderID);
 */
 
-  QString getID() const { return id; }
-  QString getTitle() const { return title; }
-  QString getSortid() const { return sortid; }
   QString getFirstitemmsec() const { return firstitemmsec; }
   QString getUrl() const { return url; }
   QString getHtmlUrl() const { return htmlUrl; }
   QString getIconUrl() const { return iconUrl; }
   QNetworkAccessManager *getQnam() const { return qnam; }
+  int getUnreadCount() const { return unreadCount; }
+
+  QString getTimestamp();
 
 private:
-  QString id;
-  QString title;
-  QString sortid;
   QString firstitemmsec;
   QString url;
   QString htmlUrl;
   QString iconUrl;
+  int unreadCount;
 //  QSet<QString> categoryIDs;  // Do I need the labels?
   QNetworkAccessManager *qnam;
   LinImageLoader *imageLoader;
+
+  QDateTime timestamp;
 };
 
 //////////////////////////////////
@@ -155,6 +174,8 @@ private:
   QString summary;
   QString enclosureUrl;
   QString enclosureType;
+
+//  QDateTime timestamp;
 };
 
 typedef QMap<QString, LinTORItem> LinTORItemCollection;

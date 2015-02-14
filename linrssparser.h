@@ -38,12 +38,15 @@ class LinRSSParser: public QObject
 public:
   LinRSSParser(
     LinNewsfeedWidgetItem *nwi,
-    QString sourseUrl,
+    QString sourceUrl,
     QNetworkAccessManager *qnam);
 
   ~LinRSSParser();
 
   void startParsing();
+
+signals:
+  void itemUpdated();
 
 private slots:
   void parseRSSFeed();

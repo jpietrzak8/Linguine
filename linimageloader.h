@@ -7,9 +7,9 @@
 
 class QNetworkAccessManager;
 class QNetworkReply;
-class QListWidgetItem;
 class QTreeWidgetItem;
 class QString;
+class LinNewsfeedWidgetItem;
 
 class LinImageLoader: public QObject
 {
@@ -17,7 +17,7 @@ class LinImageLoader: public QObject
 
 public:
   LinImageLoader(
-    QListWidgetItem *listItem,
+    LinNewsfeedWidgetItem *nwi,
     QString imageUrl,
     QNetworkAccessManager *qnam);
 
@@ -26,13 +26,16 @@ public:
     QString imageUrl,
     QNetworkAccessManager *qnam);
 
+signals:
+  void imageUpdated();
+
 private slots:
   void loadImage();
 
 private:
   QPixmap image;
 
-  QListWidgetItem *listItem;
+  LinNewsfeedWidgetItem *newsfeedItem;
   QTreeWidgetItem *treeItem;
   QNetworkAccessManager *qnam;
   QNetworkReply *reply;

@@ -31,60 +31,101 @@ LinTORFolderItem::LinTORFolderItem(
   QString s,
   LinTORFolderType type)
   : id(i),
-    sortid(s)
+    sortid(s),
+    unreadCount(0)
 {
-  // Construct the label:
+  // Construct the title:
 
   if (type == Custom_TORFolder)
   {
-    // Just set the label to the id:
-    label = id;
+    // Just set the title to the id:
+    title = id;
   }
   else if (id.startsWith("user/-/label/"))
   {
-    label = id;
-    label.remove(0, 13);
+    title = id;
+    title.remove(0, 13);
   }
   else if (id == "user/-/state/com.google/starred")
   {
-    label = "Starred";
+    title = "Starred";
   }
   else if (id == "user/-/state/com.google/reading-list")
   {
-    label = "All items";
+    title = "All items";
   }
   else
   {
     qWarning() << "Unknown Tag: " << id;
-    label = "Unknown Tag";
+    title = "Unknown Tag";
   }
 
-  setText(0, label);
+  setText(0, title);
+}
+
+
+LinTORFolderItem::LinTORFolderItem(
+  QString i,
+  QString s,
+  QString t)
+  : id(i),
+    sortid(s),
+    title(t)
+{
+  setText(0, title);
+}
+
+
+LinTORFolderItem::LinTORFolderItem(
+  const LinTORFolderItem &other)
+  : QTreeWidgetItem(other)
+{
+  id = other.getID();
+  sortid = other.getSortid();
+  title = other.getTitle();
+
+  setText(0, title);
+}
+
+
+void LinTORFolderItem::setUnreadCount(
+  int uc)
+{
+  unreadCount = uc;
+
+  setData(0, Qt::UserRole + 3, unreadCount);
 }
 
 
 /////////////////////////////////////
 
 LinTORSubscriptionItem::LinTORSubscriptionItem(
-  QString i,
-  QString t,
-  QString s,
-  QString f,
+  QString id,
+  QString title,
+  QString sortid,
+  QString firstitemusec,
   QString u,
   QString h,
   QString i2,
   QNetworkAccessManager *q)
-  : id(i),
-    title(t),
-    sortid(s),
-    firstitemmsec(f),
+  : LinTORFolderItem(id, sortid, title),
     url(u),
     htmlUrl(h),
     iconUrl(i2),
+    unreadCount(0),
     qnam(q),
     imageLoader(0)
 {
-  setText(0, title);
+  // Chop the last three chars off the usec:
+  firstitemmsec = firstitemusec;
+  firstitemmsec.chop(3);
+
+  // Set the timestamp value:
+  timestamp.setMSecsSinceEpoch(firstitemmsec.toLongLong());
+  setData(0, Qt::UserRole + 1, getTimestamp());
+
+  // Initialize the unread count data role:
+  setData(0, Qt::UserRole + 3, unreadCount);
 
   // Need to do this here, due to TOR strangeness
   loadImage();
@@ -92,18 +133,22 @@ LinTORSubscriptionItem::LinTORSubscriptionItem(
 
 
 LinTORSubscriptionItem::LinTORSubscriptionItem(
-  const LinTORSubscriptionItem &item)
-  : QTreeWidgetItem(item),
+  const LinTORSubscriptionItem &other)
+  : LinTORFolderItem(other),
     imageLoader(0)
 {
-  id = item.getID();
-  title = item.getTitle();
-  sortid = item.getSortid();
-  firstitemmsec = item.getFirstitemmsec();
-  url = item.getUrl();
-  htmlUrl = item.getHtmlUrl();
-  iconUrl = item.getIconUrl();
-  qnam = item.getQnam();
+//  id = other.getID();
+//  title = other.getTitle();
+//  sortid = other.getSortid();
+  firstitemmsec = other.getFirstitemmsec();
+  url = other.getUrl();
+  htmlUrl = other.getHtmlUrl();
+  iconUrl = other.getIconUrl();
+  unreadCount = other.getUnreadCount();
+  qnam = other.getQnam();
+
+  timestamp.setMSecsSinceEpoch(firstitemmsec.toLongLong());
+  setData(0, Qt::UserRole + 1, getTimestamp());
 }
 
 
@@ -165,3 +210,9 @@ bool LinTORSubscriptionItem::includedInFolder(
   return false;
 }
 */
+
+
+QString LinTORSubscriptionItem::getTimestamp()
+{
+  return timestamp.toString(Qt::ISODate);
+}
