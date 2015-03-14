@@ -45,6 +45,28 @@ LinWidgetUIForm::LinWidgetUIForm(QWidget *parent) :
   settingsDialog = new LinWidgetSettingsDialog();
   settingsDialog->hide();
 
+  // Set the text colors:
+  QString stylesheet;
+
+  stylesheet = "QLabel { color: ";
+  stylesheet += settingsDialog->getActiveTextColor();
+  stylesheet += "; }";
+
+  ui->nameLabel->setStyleSheet(stylesheet);
+
+  stylesheet = "QLabel { color: ";
+  stylesheet += settingsDialog->getDefaultTextColor();
+  stylesheet += "; }";
+
+  ui->contentLabel->setStyleSheet(stylesheet);
+
+  stylesheet = "QLabel { color: ";
+  stylesheet += settingsDialog->getSecondaryTextColor();
+  stylesheet += "; }";
+
+  ui->dateLabel->setStyleSheet(stylesheet);
+
+  // Collect the current item:
   currentItem = settingsDialog->getCurrentItem();
 
   updateItem();

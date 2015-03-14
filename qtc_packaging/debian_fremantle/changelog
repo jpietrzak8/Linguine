@@ -1,5 +1,12 @@
+linguine (0.4.1) unstable; urgency=low
+  * Tweaked the widget to look a little better.
+  * Fixed the NPR newsfeeds.
+
+ -- John Pietrzak <jpietrzak8@gmail.com>  Sat, 14 Mar 2015 05:12:02 -0400
+
 linguine (0.4.0) unstable; urgency=low
   * Added a (very rudimentary) widget-mode; this will display one audio or video source, which can be played by clicking the icon.  Updates every half hour.
+  * Added Deutche Welle text news rss feed.
   * Fixed a few RSS parser bugs.
 
  -- John Pietrzak <jpietrzak8@gmail.com>  Sat, 14 Feb 2015 10:57:38 -0500

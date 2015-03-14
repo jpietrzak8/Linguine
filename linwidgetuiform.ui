@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>120</height>
+    <height>136</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,14 +19,23 @@
   <property name="maximumSize">
    <size>
     <width>460</width>
-    <height>120</height>
+    <height>200</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Linguine Widget</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>8</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -39,8 +48,8 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>120</width>
-       <height>120</height>
+       <width>128</width>
+       <height>128</height>
       </size>
      </property>
      <property name="text">
@@ -89,7 +98,7 @@
        <property name="maximumSize">
         <size>
          <width>340</width>
-         <height>80</height>
+         <height>128</height>
         </size>
        </property>
        <property name="text">
